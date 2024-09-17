@@ -1,0 +1,70 @@
+name : Main pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+env:
+  os: RHEL
+  os_version: 93
+jobs:
+  parsing:
+    runs-on: ubuntu-latest
+    outputs:
+      compvers: ${{ steps.params.outputs.compvers }}
+      compname: ${{ steps.params.outputs.compname }}
+      comparch: ${{ steps.params.outputs.comparch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: 'true'
+      
+      - name: Parse alumet version
+        id: params
+        run: |
+          compvers=$(awk '/Version/ { print $2 }' ./specs/alumet.spec)
+          compname=$(awk '/Name/ { print $2 }' ./specs/alumet.spec)
+          comparch=$(awk '/BuildArch/ { print $2 }' ./specs/alumet.spec)
+          
+          echo "compvers=$compvers" >> $GITHUB_OUTPUT
+          echo "compname=$compname" >> $GITHUB_OUTPUT
+          echo "comparch=$comparch" >> $GITHUB_OUTPUT
+
+          echo "Pipeline will build [$compname] in version [$compvers] for the architecture [$comparch]" >> $GITHUB_STEP_SUMMARY
+
+  packaging:
+    runs-on: ubuntu-latest
+    needs:
+      - parsing
+    env:
+      name: ${{ needs.parsing.outputs.compname }}
+      compvers: ${{ needs.parsing.outputs.compvers }}
+      arch: ${{ needs.parsing.outputs.comparch }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install RPM
+        run: sudo apt update && sudo apt upgrade -y && sudo apt install rpm
+
+      - name: Setup for alumet
+        run: |
+          mkdir -p alumet
+      - name: Install alumet
+        uses: actions/checkout@v4
+        with:
+            repository: alumet-dev/alumet
+            path: "alumet"
+            
+
+      - name: get Spec settings
+        id: get-spec-settings
+        env:
+          build_dir: "$(pwd)/build"
+        run: |
+          echo $(pwd)
+          ls -al
+          mkdir -p ${{ env.build_dir }}/SOURCES
+          tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
+          rpmbuild -ba --define "_topdir ${{ env.build_dir }}" specs/alumet.spec
