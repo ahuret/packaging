@@ -79,12 +79,28 @@ jobs:
           mkdir -p ${{ env.build_dir }}/SOURCES
           tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
           rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.os}}${{env.os_version}}" specs/alumet.spec
-      
-      - name: Upload artifact
+          ls -al ./build/RPMS/${{ env.arch }}/
+
+      - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
-          path: ./build/RPMS/${{ env.arch }}/alumet-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          name: alumet-local-agent-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          path: |
+            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-local-agent-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+      
+      - name: Upload artifact relay client
+        uses: actions/upload-artifact@v4
+        with:
+          name: alumet-relay-client-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          path: |          
+            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-client-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+
+      - name: Upload artifact relay server
+        uses: actions/upload-artifact@v4
+        with:
+          name: alumet-relay-server-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          path: |
+            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-server-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
   
   # publish:
   #   runs-on: ubuntu-latest
