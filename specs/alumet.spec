@@ -30,35 +30,42 @@ Customizable and efficient tool for measuring the energy consumption and perform
 
  
 %build
+mkdir -p %{_builddir}/bin/
+cp alumet.sh %{_builddir}/alumet-local-agent
+cp alumet.sh %{_builddir}/alumet-relay-server
+cp alumet.sh %{_builddir}/alumet-relay-client
 cd alumet/app-agent
-json=$(CARGO_TARGET_DIR=%{_builddir} cargo build --bins --release --all-features --message-format=json-render-diagnostics "$@")
-executables=$(echo "$json" | grep -oP '"executable":"\K[^"]+' | tr '\n' ' ')
-echo "$executables" > %{_builddir}/executables.txt
-
-
+CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-local-agent --features="local_x86"
+CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-relay-server --features="relay_server"
+CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-relay-client --features="relay_client"
 
 %install
-mkdir -p %{buildroot}%{_bindir}
-ls -al %{_builddir}
-ls -al %{_builddir}/release/
-ls -al %{_builddir}/release/build/
-ls -al %{_builddir}/release/incremental
-ls -al  %{buildroot}%{_bindir}
-executables=$(cat %{_builddir}/executables.txt)
-for binary in $executables; do
-    filename=$(basename "$binary")
-    install -D -m 0755 "$binary" %{buildroot}%{_bindir}/"$filename"
-done
+mkdir -p %{buildroot}%{_bindir}/alumet/
+install -D -m 0755 "%{_builddir}/alumet-local-agent" "%{buildroot}%{_bindir}/"
+install -D -m 0755 "%{_builddir}/alumet-relay-server" "%{buildroot}%{_bindir}/"
+install -D -m 0755 "%{_builddir}/alumet-relay-client" "%{buildroot}%{_bindir}/"
+install -D -m 0755 "%{_builddir}/bin/release/alumet-local-agent" "%{buildroot}%{_bindir}/alumet/alumet-local-agent"
+install -D -m 0755 "%{_builddir}/bin/release/alumet-relay-client" "%{buildroot}%{_bindir}/alumet/alumet-relay-client"
+install -D -m 0755 "%{_builddir}/bin/release/alumet-relay-server" "%{buildroot}%{_bindir}/alumet/alumet-relay-server"
+mkdir -p %{buildroot}%{_sysconfdir}/alumet
+chmod 777 %{buildroot}%{_sysconfdir}/alumet
+
 
 
 %files alumet-local-agent
+%{_bindir}/alumet/alumet-local-agent
 %{_bindir}/alumet-local-agent
+%dir %{_sysconfdir}/alumet/
 
 %files alumet-relay-server
+%{_bindir}/alumet/alumet-relay-server
 %{_bindir}/alumet-relay-server
+%dir %{_sysconfdir}/alumet/
 
 %files alumet-relay-client
+%{_bindir}/alumet/alumet-relay-client
 %{_bindir}/alumet-relay-client
+%dir %{_sysconfdir}/alumet/
 
  
 %changelog 

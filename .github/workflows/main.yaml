@@ -63,6 +63,7 @@ jobs:
       - name: Setup for alumet
         run: |
           mkdir -p alumet
+          mkdir -p /etc/alumet
 
       - name: Checkout alumet
         uses: actions/checkout@v4
@@ -79,7 +80,6 @@ jobs:
           mkdir -p ${{ env.build_dir }}/SOURCES
           tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
           rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.os}}${{env.os_version}}" specs/alumet.spec
-          ls -al ./build/RPMS/${{ env.arch }}/
 
       - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
@@ -102,21 +102,3 @@ jobs:
           path: |
             ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-server-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
   
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - packaging
-  #   env:
-  #     name: ${{ needs.parsing.outputs.compname }}
-  #     compvers: ${{ needs.parsing.outputs.compvers }}
-  #     arch: ${{ needs.parsing.outputs.comparch }}
-
-  #   steps:        
-  #     - name: Checkout git repository
-  #       uses: actions/checkout@v4
-
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
-
