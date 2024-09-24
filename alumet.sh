@@ -12,7 +12,7 @@ fi
 
 alumet_bin_name=$(basename "$0")
 path_to_bin=$(temp=$( realpath "$0"  ) && dirname "$temp")
-echo "Real path: $path_to_bin"
+
 if [[ -x "$path_to_bin/alumet/$alumet_bin_name" ]]; then
     $path_to_bin/alumet/$alumet_bin_name --config "$DEFAULT_ALUMET_CONFIG_FILE"
 else

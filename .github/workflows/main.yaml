@@ -6,9 +6,11 @@ on:
       - main
       - ci/create-rpm-package
   pull_request:
+
 env:
   os: RHEL
   os_version: 93
+
 jobs:
   parsing:
     runs-on: ubuntu-latest
@@ -17,6 +19,7 @@ jobs:
       compname: ${{ steps.params.outputs.compname }}
       comparch: ${{ steps.params.outputs.comparch }}
     steps:
+
       - uses: actions/checkout@v4
         with:
           fetch-tags: 'true'
@@ -45,6 +48,7 @@ jobs:
     container:
       image: fedora:40
     steps:
+      
       - uses: actions/checkout@v4
 
       - name: Install RPM
@@ -71,6 +75,10 @@ jobs:
             repository: alumet-dev/alumet
             path: "alumet"
             
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+          cache-targets: "alumet"
 
       - name: get Spec settings
         id: get-spec-settings
