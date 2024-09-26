@@ -24,12 +24,25 @@ jobs:
         with:
           fetch-tags: 'true'
       
+      - name: Setup for alumet
+        run: |
+          mkdir -p alumet
+
+      - name: Checkout alumet
+        uses: actions/checkout@v4
+        with:
+            repository: alumet-dev/alumet
+            path: "alumet"
+      
       - name: Parse alumet version
         id: params
         run: |
-          compvers=$(awk '/Version/ { print $2 }' ./specs/alumet.spec)
           compname=$(awk '/Name/ { print $2 }' ./specs/alumet.spec)
           comparch=$(awk '/BuildArch/ { print $2 }' ./specs/alumet.spec)
+
+          cd alumet/app-agent/
+          cargo generate-lockfile 
+          compvers=$(cargo pkgid | cut -d "#" -f2)
           
           echo "compvers=$compvers" >> $GITHUB_OUTPUT
           echo "compname=$compname" >> $GITHUB_OUTPUT
@@ -41,27 +54,39 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - parsing
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["fedora:40", "fedora:41", "fedora:42"]
     env:
       name: ${{ needs.parsing.outputs.compname }}
       compvers: ${{ needs.parsing.outputs.compvers }}
       arch: ${{ needs.parsing.outputs.comparch }}
     container:
-      image: fedora:40
+      image: ${{ matrix.os }}
     steps:
       
       - uses: actions/checkout@v4
-
-      - name: Install RPM
+      
+      - name: Export good OS version
         run: |
-          sudo dnf install rust cargo -y -v
+          echo "OS=$(echo ${{ matrix.os }} | sed 's/:/-/g')" >> $GITHUB_ENV
+
+      - name: Install RPM on Fedora
+        if: contains(matrix.os, 'fedora')
+        run: |
+          sudo dnf install rust cargo -y
           export PATH=$PATH:$HOME/.cargo/bin/
-          sudo dnf install rpm-build rpmdevtools -y -v
-          sudo dnf install cargo-rpm-macros -y -v
-          cargo install cargo-lock2rpmprovides
+          sudo dnf install rpm-build rpmdevtools -y
+          sudo dnf install cargo-rpm-macros -y
+          sudo dnf install openssl-devel -y
+        
+      - name: Install protoc
+        run: |
           PROTOC_ZIP=protoc-28.0-linux-x86_64.zip
           curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v28.0/$PROTOC_ZIP
-          sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
-          sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+          sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc || unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+          sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*' || unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
           rm -f $PROTOC_ZIP
           
       - name: Setup for alumet
@@ -87,26 +112,26 @@ jobs:
         run: |
           mkdir -p ${{ env.build_dir }}/SOURCES
           tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
-          rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.os}}${{env.os_version}}" specs/alumet.spec
+          rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.os}}${{env.os_version}}" --define "version ${{ env.compvers }}" specs/alumet.spec
 
       - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-local-agent-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          name: alumet-local-agent-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
           path: |
             ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-local-agent-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
       
       - name: Upload artifact relay client
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-relay-client-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          name: alumet-relay-client-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
           path: |          
             ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-client-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
 
       - name: Upload artifact relay server
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-relay-server-${{ env.name }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+          name: alumet-relay-server-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
           path: |
             ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-server-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
   

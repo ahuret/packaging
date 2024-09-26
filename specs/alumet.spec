@@ -1,5 +1,5 @@
 Name:           alumet
-Version:        0.5.0
+Version:        %{version}
 Release:        %{release}
 Summary:        A tool for measuring the energy consumption and performance metrics
 License:        EUPL
