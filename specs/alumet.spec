@@ -1,3 +1,5 @@
+%global debug_package %{nil}
+
 Name:           alumet
 Version:        %{version}
 Release:        %{release}
@@ -6,6 +8,14 @@ License:        EUPL
 Url:            https://github.com/alumet-dev/alumet
 Source:         %{name}.tar.gz
 BuildArch:      x86_64
+
+Requires: glibc >= 2.2.5
+Requires: gcc >= 3.0
+Requires: gnu-hash
+Requires: rpmlib(CompressedFileNames) <= 3.0.4-1
+Requires: rpmlib(FileDigests) <= 4.6.0-1
+Requires: rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+Requires: rpmlib(PayloadIsXz) <= 5.2-1
 
 %package alumet-local-agent
 Summary:        alumet-local-agent package
@@ -39,33 +49,33 @@ CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-local-agen
 CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-relay-server --features="relay_server"
 CARGO_TARGET_DIR=%{_builddir}/bin/ cargo build --release --bin alumet-relay-client --features="relay_client"
 
+
 %install
-mkdir -p %{buildroot}%{_bindir}/alumet/
-install -D -m 0755 "%{_builddir}/alumet-local-agent" "%{buildroot}%{_bindir}/"
-install -D -m 0755 "%{_builddir}/alumet-relay-server" "%{buildroot}%{_bindir}/"
-install -D -m 0755 "%{_builddir}/alumet-relay-client" "%{buildroot}%{_bindir}/"
-install -D -m 0755 "%{_builddir}/bin/release/alumet-local-agent" "%{buildroot}%{_bindir}/alumet/alumet-local-agent"
-install -D -m 0755 "%{_builddir}/bin/release/alumet-relay-client" "%{buildroot}%{_bindir}/alumet/alumet-relay-client"
-install -D -m 0755 "%{_builddir}/bin/release/alumet-relay-server" "%{buildroot}%{_bindir}/alumet/alumet-relay-server"
-mkdir -p %{buildroot}%{_sysconfdir}/alumet
-chmod 777 %{buildroot}%{_sysconfdir}/alumet
-
-
+mkdir -p %{buildroot}%{_exec_prefix}/lib/
+mkdir -p %{buildroot}%{_exec_prefix}/bin/
+install -D -m 0555 "%{_builddir}/bin/release/alumet-local-agent" "%{buildroot}%{_exec_prefix}/lib/alumet-local-agent_bin"
+install -D -m 0555 "%{_builddir}/bin/release/alumet-relay-server" "%{buildroot}%{_exec_prefix}/lib/alumet-relay-server_bin"
+install -D -m 0555 "%{_builddir}/bin/release/alumet-relay-client" "%{buildroot}%{_exec_prefix}/lib/alumet-relay-client_bin"
+install -D -m 0755 "%{_builddir}/alumet-local-agent" "%{buildroot}%{_exec_prefix}/bin/"
+install -D -m 0755 "%{_builddir}/alumet-relay-server" "%{buildroot}%{_exec_prefix}/bin/"
+install -D -m 0755 "%{_builddir}/alumet-relay-client" "%{buildroot}%{_exec_prefix}/bin/"
+mkdir -p %{buildroot}%{_sharedstatedir}/alumet
+chmod 777 %{buildroot}%{_sharedstatedir}/alumet
 
 %files alumet-local-agent
-%{_bindir}/alumet/alumet-local-agent
 %{_bindir}/alumet-local-agent
-%dir %{_sysconfdir}/alumet/
+%{_exec_prefix}/lib/alumet-local-agent_bin
+%dir %{_sharedstatedir}/alumet/
 
 %files alumet-relay-server
-%{_bindir}/alumet/alumet-relay-server
 %{_bindir}/alumet-relay-server
-%dir %{_sysconfdir}/alumet/
+%{_exec_prefix}/lib/alumet-relay-server_bin
+%dir %{_sharedstatedir}/alumet/
 
 %files alumet-relay-client
-%{_bindir}/alumet/alumet-relay-client
 %{_bindir}/alumet-relay-client
-%dir %{_sysconfdir}/alumet/
+%{_exec_prefix}/lib/alumet-relay-client_bin
+%dir %{_sharedstatedir}/alumet/
 
  
 %changelog 

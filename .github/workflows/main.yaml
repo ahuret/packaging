@@ -1,15 +1,10 @@
 name : Main pipeline
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - ci/create-rpm-package
   pull_request:
 
 env:
-  os: RHEL
-  os_version: 93
+  ARCH: "x86_64" 
 
 jobs:
   parsing:
@@ -17,7 +12,6 @@ jobs:
     outputs:
       compvers: ${{ steps.params.outputs.compvers }}
       compname: ${{ steps.params.outputs.compname }}
-      comparch: ${{ steps.params.outputs.comparch }}
     steps:
 
       - uses: actions/checkout@v4
@@ -37,8 +31,7 @@ jobs:
       - name: Parse alumet version
         id: params
         run: |
-          compname=$(awk '/Name/ { print $2 }' ./specs/alumet.spec)
-          comparch=$(awk '/BuildArch/ { print $2 }' ./specs/alumet.spec)
+          compname=$(awk '/Name/ { print $2; exit }' ./specs/alumet.spec)
 
           cd alumet/app-agent/
           cargo generate-lockfile 
@@ -46,9 +39,8 @@ jobs:
           
           echo "compvers=$compvers" >> $GITHUB_OUTPUT
           echo "compname=$compname" >> $GITHUB_OUTPUT
-          echo "comparch=$comparch" >> $GITHUB_OUTPUT
 
-          echo "Pipeline will build [$compname] in version [$compvers] for the architecture [$comparch]" >> $GITHUB_STEP_SUMMARY
+          echo "Pipeline will build [$compname] in version [$compvers] for the architecture [${{ env.ARCH }}]" >> $GITHUB_STEP_SUMMARY
 
   packaging:
     runs-on: ubuntu-latest
@@ -57,11 +49,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["fedora:40", "fedora:41", "fedora:42"]
+        os: ["fedora:40", "fedora:41", "fedora:42", "registry.access.redhat.com/ubi8/ubi:8.10", "registry.access.redhat.com/ubi9/ubi:9.5"]
     env:
       name: ${{ needs.parsing.outputs.compname }}
       compvers: ${{ needs.parsing.outputs.compvers }}
-      arch: ${{ needs.parsing.outputs.comparch }}
     container:
       image: ${{ matrix.os }}
     steps:
@@ -70,29 +61,40 @@ jobs:
       
       - name: Export good OS version
         run: |
-          echo "OS=$(echo ${{ matrix.os }} | sed 's/:/-/g')" >> $GITHUB_ENV
+          echo "OS=$(echo ${{ matrix.os }} | awk -F'[/:]' '{print $(NF-1) "." $NF}')" >> $GITHUB_ENV
 
       - name: Install RPM on Fedora
         if: contains(matrix.os, 'fedora')
         run: |
           sudo dnf install rust cargo -y
           export PATH=$PATH:$HOME/.cargo/bin/
-          sudo dnf install rpm-build rpmdevtools -y
+          sudo dnf install rpm-build -y
           sudo dnf install cargo-rpm-macros -y
           sudo dnf install openssl-devel -y
+
+      - name: Install RPM on other than Fedora
+        if: ${{ ! contains(matrix.os, 'fedora') }}
+        run: |
+          packages=("unzip" "rpm-build" "openssl-devel" "curl" "rust" "cargo")
+          for package in "${packages[@]}"; do
+            if ! yum list installed "$package" >/dev/null 2>&1; then
+              yum install -y --allowerasing "$package"
+            fi
+          done
+
         
       - name: Install protoc
         run: |
           PROTOC_ZIP=protoc-28.0-linux-x86_64.zip
           curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v28.0/$PROTOC_ZIP
-          sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc || unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
-          sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*' || unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+          unzip -o $PROTOC_ZIP -d /usr/local bin/protoc || unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+          unzip -o $PROTOC_ZIP -d /usr/local 'include/*' || unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
           rm -f $PROTOC_ZIP
           
       - name: Setup for alumet
         run: |
           mkdir -p alumet
-          mkdir -p /etc/alumet
+          mkdir -p /etc/alumet //TODO change
 
       - name: Checkout alumet
         uses: actions/checkout@v4
@@ -112,26 +114,26 @@ jobs:
         run: |
           mkdir -p ${{ env.build_dir }}/SOURCES
           tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
-          rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.os}}${{env.os_version}}" --define "version ${{ env.compvers }}" specs/alumet.spec
+          rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{env.OS}}" --define "version ${{ env.compvers }}" --define "arch ${{ env.ARCH }}" specs/alumet.spec
 
       - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-local-agent-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
+          name: alumet-local-agent-${{ env.name }}-${{ env.OS }}.${{ env.ARCH }}.rpm
           path: |
-            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-local-agent-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+            ./build/RPMS/${{ env.ARCH }}/${{ env.name }}-alumet-local-agent-${{ env.compvers }}-${{env.OS}}.${{ env.ARCH }}.rpm
       
       - name: Upload artifact relay client
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-relay-client-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
+          name: alumet-relay-client-${{ env.name }}-${{ env.OS }}.${{ env.ARCH }}.rpm
           path: |          
-            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-client-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+            ./build/RPMS/${{ env.ARCH }}/${{ env.name }}-alumet-relay-client-${{ env.compvers }}-${{env.OS}}.${{ env.ARCH }}.rpm
 
       - name: Upload artifact relay server
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-relay-server-${{ env.name }}-${{env.os}}${{ env.OS }}.${{ env.arch }}.rpm
+          name: alumet-relay-server-${{ env.name }}-${{ env.OS }}.${{ env.ARCH }}.rpm
           path: |
-            ./build/RPMS/${{ env.arch }}/${{ env.name }}-alumet-relay-server-${{ env.compvers }}-${{env.os}}${{env.os_version}}.${{ env.arch }}.rpm
+            ./build/RPMS/${{ env.ARCH }}/${{ env.name }}-alumet-relay-server-${{ env.compvers }}-${{env.OS}}.${{ env.ARCH }}.rpm
   
