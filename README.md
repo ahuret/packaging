@@ -11,10 +11,10 @@ Alumet docker images and distro-specific packages
 
 When you're downloading the deb, use a compatible Unix system version.
 
-| Version of fedora 	| Version of libc 	|
-|-------------------	|-----------------	|
-| Debian 12   		| glibc 2.35      	|
-| Ubuntu 24.04.1 LTS  	| glibc 2.3      	|
+| Version of Debian base OS | Version of libc 	|
+|---------------------------|-----------------	|
+| Debian 12   		          | glibc 2.35      	|
+| Ubuntu 24.04.1 LTS        | glibc 2.3      	  |
 
 # Create your own package
 
