@@ -4,6 +4,7 @@ Alumet docker images and distro-specific packages
 # Table of Contents
 - [packaging](#packaging)
 - [Table of Contents](#table-of-contents)
+- [Create your own package](#create-your-own-package)
 - [How to install ?](#how-to-install-)
 - [How to uninstall](#how-to-uninstall)
 - [What does the DEB do ?](#what-does-the-deb-do-)
@@ -14,6 +15,12 @@ When you're downloading the deb, use a compatible Unix system version.
 |-------------------	|-----------------	|
 | Debian 12   		| glibc 2.35      	|
 | Ubuntu 24.04.1 LTS  	| glibc 2.3      	|
+
+# Create your own package
+
+```bash
+sudo dpkg --build <folder_to_package> <package.deb>
+```
 
 # How to install ? 
 
