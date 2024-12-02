@@ -1,0 +1,13 @@
+#!/bin/bash
+
+clear
+
+PATH="/usr/lib/alumet/alumet-local-agent"
+CONFIG="/var/lib/alumet/alumet-config.toml"
+
+if [ ! -f "$PATH" ]; then
+    echo "<ERROR>: $PATH not found."
+    exit 1
+fi
+
+"$PATH" --config="$CONFIG"
