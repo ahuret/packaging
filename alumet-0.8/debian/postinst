@@ -1,7 +1,5 @@
 #!/bin/bash
 
-clear
-
 BIN="usr/lib/alumet/alumet-agent"
 
 setcap 'cap_sys_nice+ep cap_perfmon=ep' $BIN

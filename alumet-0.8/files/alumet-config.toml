@@ -1,5 +1,18 @@
+[plugins.k8s]
+path = "/sys/fs/cgroup/kubepods.slice/"
+poll_interval = "1s"
+kubernetes_api_url = "https://127.0.0.1:8080"
+hostname = ""
+token_retrieval = "kubectl"
+enable = false
+
 [plugins.OAR3]
 path = "/sys/fs/cgroup/"
+poll_interval = "1s"
+enable = true
+
+[plugins.oar2-plugin]
+path = "/sys/fs/cgroup"
 poll_interval = "1s"
 enable = true
 
@@ -17,15 +30,7 @@ token = "FILL ME"
 org = "FILL ME"
 bucket = "FILL ME"
 attributes_as = "field"
-enable = true
-
-[plugins.k8s]
-path = "/sys/fs/cgroup/kubepods.slice/"
-poll_interval = "1s"
-kubernetes_api_url = "https://127.0.0.1:8080"
-hostname = ""
-token_retrieval = "kubectl"
-enable = true
+enable = false
 
 [plugins.mongodb]
 host = "localhost"
@@ -34,17 +39,12 @@ database = "FILL ME"
 collection = "FILL ME"
 username = "FILL ME"
 password = "FILL ME"
-enable = true
+enable = false
 
 [plugins.nvidia]
 poll_interval = "1s"
 flush_interval = "5s"
-enable = true
-
-[plugins.oar2-plugin]
-path = "/sys/fs/cgroup"
-poll_interval = "1s"
-enable = true
+enable = false
 
 [plugins.perf]
 poll_interval = "1s"
@@ -101,7 +101,7 @@ client_name = "FILL ME"
 relay_server = "[::1]:50051"
 buffer_max_length = 4096
 buffer_timeout = "30s"
-enable = true
+enable = false
 
 [plugins.relay-client.retry]
 max_times = 8
@@ -110,6 +110,7 @@ max_delay = "4s"
 
 [plugins.relay-server]
 address = "[::]:50051"
+enable = false
 
 [plugins.socket-control]
 socket_path = "alumet-control.sock"
