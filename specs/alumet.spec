@@ -33,9 +33,10 @@ Customizable and efficient tool for measuring the energy consumption and perform
 %build
 mkdir -p %{_builddir}/bin/
 cp packaging/alumet.sh %{_builddir}/alumet-agent
+cp packaging/alumet.service %{_builddir}/alumet.service
 cd alumet/agent
 CARGO_TARGET_DIR=%{_builddir}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
-ALUMET_CONFIG=%{_builddir}/alumet-config.toml %{_builddir}/bin/release/alumet-agent config regen 
+ALUMET_CONFIG=%{_builddir}/alumet-config.toml %{_builddir}/bin/release/alumet-agent --plugins csv,perf,procfs,socket-control config regen 
 
 %install
 mkdir -p %{buildroot}%{_exec_prefix}/lib/
@@ -45,14 +46,18 @@ install -D -m 0755 "%{_builddir}/alumet-agent" "%{buildroot}%{_bindir}/"
 mkdir -p %{buildroot}%{_sysconfdir}/alumet
 chmod 777 %{buildroot}%{_sysconfdir}/alumet
 install -D -m 0755 "%{_builddir}/alumet-config.toml" "%{buildroot}%{_sysconfdir}/alumet/alumet-config.toml"
+install -D -m 0644 "%{_builddir}/alumet.service" "%{buildroot}%{_exec_prefix}/lib/systemd/system/alumet.service"
 
 %files agent
 %{_bindir}/alumet-agent
 %{_exec_prefix}/lib/alumet-agent
 %dir %{_sysconfdir}/alumet/
 %{_sysconfdir}/alumet/alumet-config.toml
+%{_exec_prefix}/lib/systemd/system/alumet.service
 
 %changelog 
+* Mon Feb 10 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.3
+- Add service file
 * Wed Feb 05 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.2
 - Unified package
 * Wed Sep 18 2024 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.1
