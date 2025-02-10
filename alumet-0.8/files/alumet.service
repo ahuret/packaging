@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/alumet
+ExecStart=/usr/bin/alumet --output-file "/var/log/alumet-output.csv"
 Restart=on-failure
 RestartSec=10
 

@@ -9,12 +9,12 @@ enable = false
 [plugins.OAR3]
 path = "/sys/fs/cgroup/"
 poll_interval = "1s"
-enable = true
+enable = false
 
 [plugins.oar2-plugin]
 path = "/sys/fs/cgroup"
 poll_interval = "1s"
-enable = true
+enable = false
 
 [plugins.csv]
 output_path = "alumet-output.csv"
@@ -94,7 +94,7 @@ flush_interval = "4s"
 poll_interval = "1s"
 flush_interval = "5s"
 no_perf_events = false
-enable = true
+enable = false
 
 [plugins.relay-client]
 client_name = "FILL ME"
@@ -114,3 +114,4 @@ enable = false
 
 [plugins.socket-control]
 socket_path = "alumet-control.sock"
+enable = true
