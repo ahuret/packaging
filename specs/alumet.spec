@@ -35,6 +35,7 @@ mkdir -p %{_builddir}/bin/
 cp packaging/alumet.sh %{_builddir}/alumet-agent
 cd alumet/agent
 CARGO_TARGET_DIR=%{_builddir}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
+ALUMET_CONFIG=%{_builddir}/alumet-config.toml %{_builddir}/bin/release/alumet-agent config regen 
 
 %install
 mkdir -p %{buildroot}%{_exec_prefix}/lib/
@@ -43,16 +44,13 @@ install -D -m 0555 "%{_builddir}/bin/release/alumet-agent" "%{buildroot}%{_exec_
 install -D -m 0755 "%{_builddir}/alumet-agent" "%{buildroot}%{_bindir}/"
 mkdir -p %{buildroot}%{_sysconfdir}/alumet
 chmod 777 %{buildroot}%{_sysconfdir}/alumet
+install -D -m 0755 "%{_builddir}/alumet-config.toml" "%{buildroot}%{_sysconfdir}/alumet/alumet-config.toml"
 
 %files agent
 %{_bindir}/alumet-agent
 %{_exec_prefix}/lib/alumet-agent
 %dir %{_sysconfdir}/alumet/
-
-%post
-set -e
-echo "Running post-install script" >> /var/log/alumet-install.log
-ALUMET_CONFIG=%{_sysconfdir}/alumet/alumet-config.toml %{_bindir}/alumet-agent config regen >> /var/log/alumet-install.log 2>&1 || echo "Error running post-install script" >> /var/log/alumet-install.log 
+%{_sysconfdir}/alumet/alumet-config.toml
 
 %changelog 
 * Wed Feb 05 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.2
