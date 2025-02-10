@@ -58,6 +58,9 @@ software_events = []
 cache_events = ["LL_READ_MISS"]
 enable = true
 
+[plugins.procfs]
+enable = true
+
 [plugins.procfs.kernel]
 enabled = true
 poll_interval = "5s"
