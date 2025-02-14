@@ -1,25 +1,15 @@
-# packaging
-Alumet docker images and distro-specific packages
+# DEB Packaging
 
-# Table of Contents
-- [packaging](#packaging)
-- [Table of Contents](#table-of-contents)
-- [Create your own package](#create-your-own-package)
-- [How to install ?](#how-to-install-)
-- [How to uninstall](#how-to-uninstall)
-- [What does the DEB do ?](#what-does-the-deb-do-)
-
-When you're downloading the deb, use a compatible Unix system version.
-
-| Version of Debian base OS | Version of libc 	|
-|---------------------------|-----------------	|
-| Debian 12   		          | glibc 2.35      	|
-| Ubuntu 24.04.1 LTS        | glibc 2.3      	  |
+Alumet debian based system image package
 
 # Create your own package
 
+To create a .deb package file to ensure its compatibility with an operating system, you need to build the **Alumet** project on it. 
+Run the *config.sh* script that downloading **Alumet** project sources on github ("https://github.com/alumet-dev/alumet"), 
+extract and compile its content in a final binary according the targeted operating system version and distribution.
+
 ```bash
-sudo dpkg --build <folder_to_package> <package.deb>
+./packager.sh
 ```
 
 # How to install ? 
@@ -27,33 +17,48 @@ sudo dpkg --build <folder_to_package> <package.deb>
 ```bash
 sudo dpkg -i <package_file.deb>
 ```
-Or :
+Or with **apt** package manager :
 ```bash
 sudo apt install ./<package_file.deb>
 ```
 
 # How to uninstall
 
-List all installed Alumet package: 
-
-```bash
-dpkg -l alumet
-```
-
-Remove the correct Alumet package 
+Remove the correct **Alumet** package :
 ```bash
 sudo dpkg -r alumet
 ```
-Or :
+Or with **apt** package manager :
 ```bash
 sudo apt remove alumet
 ```
 
-# What does the DEB do ? 
+# What does the DEB package do ? 
 
-The DEB create a folder **alumet** inside the */var/lib/* folder. Here will be put the **alumet-config.toml** file which is the config file for Alumet by default. 
-The RPM also put inside the */usr/bin/* folder the Alumet binary. As usually */usr/bin/* folder is in the path, you can just run Alumet like:
+On Debian based operating system, the DEB create a folder **alumet** inside the */var/lib/alumet/* folder,
+to put the *alumet-config.toml* file, which is the configuration file used for Alumet by default.
+It also creating a daemon disable by default, but runnable and usable by the *systemd* services manager.
+Finally, the package put the **Alumet** binary program in the */usr/lib/alumet* folder, and its runnable script in */usr/bin/*.
+
+    alumet/
+    |__ usr
+    │   └── lib
+    │       └── systemd
+    │           └── system
+    │               └── alumet.service
+    ├── var
+    |   └── lib
+    │       └── alumet
+    │           └── alumet-config.toml
+    └── usr
+        ├── bin
+        │   └── alumet
+        └── lib
+            └── alumet
+                └── alumet-agent
+
+Finally, you can just run **Alumet** program like this :
 
 ```bash
-alumet-local-agent
+alumet
 ```

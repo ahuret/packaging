@@ -49,8 +49,7 @@ on:
         type: string
 
 env:
-  url: "https://github.com/alumet-dev/alumet/archive/refs/heads/main.zip"
-  archive: "sources.zip"
+  url: "https://github.com/alumet-dev/alumet.git"
   dependencies: "build-essential devscripts debhelper"
 
 jobs:
@@ -105,10 +104,7 @@ jobs:
           fi
 
           cd "$dir" || exit
-          curl -L "${{ env.url }}" -o "${{ env.archive }}" || exit
-
-          unzip "${{ env.archive }}" || exit
-          rm "${{ env.archive }}"
+          git clone --depth 1 "${{ env.url }}" || exit
 
       - name: Official DEB package construction with dpkg builder
         shell: bash

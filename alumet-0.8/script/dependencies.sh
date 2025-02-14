@@ -4,7 +4,7 @@ URL="https://sh.rustup.rs"
 REQUIRED="1.76"
 
 DEP_RUST="rustc"
-DEP_PKG=("curl" "unzip" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config" "libcap2-bin")
+DEP_PKG=("curl" "git" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config" "libcap2-bin")
 
 ##
 # Running a command with sudo permissions

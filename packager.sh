@@ -10,8 +10,7 @@ AUTHOR="Guillaume Raffin"
 MAIL="theelectronwill@gmail.com"
 MESSAGE="Message"
 
-URL="https://github.com/alumet-dev/alumet/archive/refs/heads/main.zip"
-ARCHIVE="sources.zip"
+URL="https://github.com/alumet-dev/alumet.git"
 
 FILES=files
 BIN="alumet-agent"
@@ -68,10 +67,7 @@ download(){
     fi
 
     cd "$dir" || exit
-    curl -L "$URL" -o "$ARCHIVE" || exit
-
-    unzip "$ARCHIVE" || exit
-    rm "$ARCHIVE"
+    git clone --depth 1 "$URL" || exit
 }
 
 ##
