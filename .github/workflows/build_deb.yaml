@@ -64,6 +64,7 @@ jobs:
   
     container:
       image: ${{ matrix.os }}
+      options: --privileged
 
     steps:
       - uses: actions/checkout@v4
@@ -132,6 +133,15 @@ jobs:
         run: |
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
           apt install ./"${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb || exit
+
+      - name: Testing 'Alumet' package execution after its deployment on system
+        shell: bash
+        run: |
+          ls -l /usr/bin/alumet || exit
+          ls -l /usr/lib/alumet/alumet-agent || exit
+          ls -l /usr/lib/systemd/system/alumet.service || exit
+          ls -l /var/lib/alumet/alumet-config.toml || exit
+          alumet exec sleep 1
 
       - name: Upload artifact agent
         uses: actions/upload-artifact@v4
