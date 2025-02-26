@@ -15,7 +15,7 @@ jobs:
 
       distro: "stable"
       urgency: "medium"
-      note: "Release v0.8.1"
+      note: "Last release"
 
       author: "Guillaume Raffin"
       mail: "theelectronwill@gmail.com"

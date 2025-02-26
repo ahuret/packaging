@@ -24,7 +24,7 @@ on:
         type: string
 
       distro:
-        description: 'Functional status of package : {UNRELEASED, focal, jammy, noble, oracular, plucky, -updates, -security, -proposed, -backports}'
+        description: 'Functional status of package : {UNRELEASED, focal, stable, unstable, -updates, -security, -proposed, -backports}'
         required: true
         type: string
 
@@ -50,7 +50,7 @@ on:
 
 env:
   url: "https://github.com/alumet-dev/alumet.git"
-  dependencies: "build-essential devscripts debhelper"
+  dependencies: "build-essential devscripts debhelper systemctl"
 
 jobs:
   packaging:
@@ -64,7 +64,7 @@ jobs:
   
     container:
       image: ${{ matrix.os }}
-      options: --privileged
+      options: --cap-add=SYS_NICE --cap-add=PERFMON
 
     steps:
       - uses: actions/checkout@v4
@@ -141,7 +141,10 @@ jobs:
           ls -l /usr/lib/alumet/alumet-agent || exit
           ls -l /usr/lib/systemd/system/alumet.service || exit
           ls -l /var/lib/alumet/alumet-config.toml || exit
-          alumet exec sleep 1
+
+          alumet exec sleep 1 || exit
+          systemctl start alumet.service || exit
+          systemctl status alumet.service || exit
 
       - name: Upload artifact agent
         uses: actions/upload-artifact@v4
