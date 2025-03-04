@@ -11,9 +11,12 @@ Url:            https://github.com/alumet-dev/alumet
 Source:         %{name}.tar.gz
 BuildArch:      x86_64
 
-Requires: glibc >= 2.2.5
+BuildRequires:  openssl-devel >= 3.0.0
+
 Requires: gcc >= 3.0
+Requires: glibc >= 2.2.5
 Requires: gnu-hash
+Requires: openssl >= 3.0.0
 Requires: rpmlib(CompressedFileNames) <= 3.0.4-1
 Requires: rpmlib(FileDigests) <= 4.6.0-1
 Requires: rpmlib(PayloadFilesHavePrefix) <= 4.0-1
@@ -69,6 +72,8 @@ fi
 
 
 %changelog 
+* Tue Mar 04 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.4
+- Add dependencies about ssl
 * Wed Feb 26 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.3
 - Add capabilities to alumet binary
 * Mon Feb 10 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.3
