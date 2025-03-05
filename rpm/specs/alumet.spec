@@ -13,14 +13,9 @@ BuildArch:      x86_64
 
 BuildRequires:  openssl-devel >= 3.0.0
 
-Requires: gcc >= 3.0
 Requires: glibc >= 2.2.5
-Requires: gnu-hash
 Requires: openssl >= 3.0.0
-Requires: rpmlib(CompressedFileNames) <= 3.0.4-1
-Requires: rpmlib(FileDigests) <= 4.6.0-1
-Requires: rpmlib(PayloadFilesHavePrefix) <= 4.0-1
-Requires: rpmlib(PayloadIsXz) <= 5.2-1
+
 
 %package agent
 Summary:        alumet-agent package
