@@ -32,10 +32,11 @@ on:
         description: 'Urgency of the package release : {low, medium, high}'
         required: true
         type: string
+        default: medium
 
       note:
         description: 'Message concerning package state of progress'
-        required: true
+        required: false
         type: string
 
       author:
