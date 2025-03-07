@@ -1,0 +1,40 @@
+---
+name: Build Docker images pipeline
+on:
+  workflow_call:
+    inputs:
+      target-architecture:
+        description: 'What is the architecture we want to build for'
+        required: true
+        type: string
+      build-version:
+        description: 'What is the version used to build and tag the RPMs'
+        required: true
+        type: string
+      release-version:
+        description: 'What is the release version used to build and tag the RPMs'
+        required: true
+        type: string
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ["fedora:40"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ahuret/packaging
+          fetch-tags: 'true'
+          ref: 'ci/create-rpm-package'
+          path: 'packaging'
+      
+      - name: Download alumet RPM artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: theartifacts
+
+      - name: test1
+        run: ls -la
+      - name: test2
+        run: ls theartifacts -la
