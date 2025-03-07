@@ -122,8 +122,48 @@ jobs:
           rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{ inputs.release-version }}" --define "osr ${{ env.OS }}" --define "version ${{ inputs.build-version }}" --define "arch ${{ inputs.target-architecture }}" packaging/rpm/specs/alumet.spec
 
       - name: Upload artifact local agent
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
           name: alumet-local-agent-${{ env.name }}-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
           path: |
             ./build/RPMS/${{ inputs.target-architecture }}/${{ env.name }}-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
+
+  test-rpm:
+    runs-on: ubuntu-latest
+    container:
+      image: "registry.access.redhat.com/ubi8/ubi:8.3"
+      options: --cap-add=SYS_NICE --cap-add=PERFMON
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download RPM artifact
+        id: download_rpm
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '**/*8.3*.rpm'
+          path: ./rpm
+          merge-multiple: true
+
+      - name: Install RPMs
+        run: |
+          rpm -i ${{ steps.download_rpm.outputs.download-path }}/*.rpm
+
+      - name: Install Goss
+        run: |
+          curl -fsSL https://goss.rocks/install | sh
+
+      - name: Run Goss tests
+        continue-on-error: true
+        run: |
+          goss -g .github/goss_validate.yaml validate --format documentation > goss-results.txt
+          cat goss-results.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload artifact local agent
+        uses: actions/upload-artifact@v4
+        with:
+          name: report_goss.txt
+          path: |
+            ./goss-results.txt
