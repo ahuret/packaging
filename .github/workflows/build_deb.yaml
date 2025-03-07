@@ -132,12 +132,9 @@ jobs:
 
           dpkg-buildpackage -us -uc
 
-          ls -al
-          cd ..
-          ls -al
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
 
-      - name: Upload artifact agent
+      - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb 
@@ -160,9 +157,13 @@ jobs:
       options: --cap-add=SYS_NICE --cap-add=PERFMON
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download DEB artifact
+        id: download_deb
+        uses: actions/download-artifact@v4
         with:
-          fetch-tags: 'true'
+          pattern: '**/*11*.deb'
+          path: ./deb
+          merge-multiple: true
 
       - name: Check OS package required dependencies for package construction
         shell: bash
@@ -180,7 +181,7 @@ jobs:
       - name: Testing 'Alumet' package execution after its deployment on system
         shell: bash
         run: |
-          apt install ./"${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
+          apt install ${{ steps.download_deb.outputs.download-path }}/*.deb
   
           ls -l /usr/bin/alumet
           ls -l /usr/lib/alumet/alumet-agent
