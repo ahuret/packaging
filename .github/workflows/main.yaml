@@ -20,3 +20,7 @@ jobs:
       target-architecture: x86_64
       build-version: ${{ github.event.inputs.version || '0.0.0' }}
       release-version: ${{ github.event.inputs.release || '1' }}
+  docker:
+    uses: ./.github/workflows/build_docker.yaml
+    needs:
+      - rpm

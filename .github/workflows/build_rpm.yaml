@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: alumet-dev/packaging
+          repository: ahuret/packaging
           fetch-tags: 'true'
           ref: 'ci/create-rpm-package'
           path: 'packaging'
@@ -55,16 +55,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["fedora:40", "fedora:41", "fedora:42", "registry.access.redhat.com/ubi8/ubi:8.3", "registry.access.redhat.com/ubi9/ubi:9.5"]
-    env:
+        os: ["fedora:40"]
+        #os: ["fedora:40", "fedora:41", "fedora:42", "registry.access.redhat.com/ubi8/ubi:8.3", "registry.access.redhat.com/ubi9/ubi:9.5"]
+   env:
       name: ${{ needs.parsing.outputs.name }}
     container:
       image: ${{ matrix.os }}
     steps:
+      #- name: Install node to Fedora (needed for act)
+      #  if: contains(matrix.os, 'fedora')
+      #  run: dnf install -y nodejs  # Install Node.js inside Fedora
+
+      #- name: Install node to Fedora (needed for act)
+      #  if: ${{ ! contains(matrix.os, 'fedora') }}
+      #  run: yum install -y nodejs  # Install Node.js inside Fedora
 
       - uses: actions/checkout@v4
         with:
-          repository: alumet-dev/packaging
+          repository: ahuret/packaging
           fetch-tags: 'true'
           ref: 'ci/create-rpm-package'
           path: 'packaging'
