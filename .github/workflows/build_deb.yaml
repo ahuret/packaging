@@ -121,10 +121,9 @@ jobs:
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
 
+          cd "${{ env.ALUMET_DIR }}"
           ls -al
           pwd
-
-          cd "${{ env.ALUMET_DIR }}"
           chmod -R 775 script
           rm -f debian/changelog
 
