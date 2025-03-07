@@ -140,8 +140,9 @@ jobs:
             ${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb
 
   testing:
+    needs: packaging
 
-    runs-on: ubuntu-latest
+    runs-on: debian-latest
 
     strategy:
       fail-fast: false
