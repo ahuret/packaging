@@ -57,7 +57,7 @@ jobs:
       matrix:
         os: ["fedora:40"]
         #os: ["fedora:40", "fedora:41", "fedora:42", "registry.access.redhat.com/ubi8/ubi:8.3", "registry.access.redhat.com/ubi9/ubi:9.5"]
-   env:
+    env:
       name: ${{ needs.parsing.outputs.name }}
     container:
       image: ${{ matrix.os }}
