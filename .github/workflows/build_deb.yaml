@@ -73,7 +73,7 @@ jobs:
           repository: alumet-dev/alumet
           fetch-tags: 'true'
           ref: 'main'
-          path: 'alumet'
+          path: 'alumet-X.X'
 
       - name: Set dynamic environment variables
         run: |
