@@ -4,20 +4,7 @@ URL="https://sh.rustup.rs"
 REQUIRED="1.76"
 
 DEP_RUST="rustc"
-DEP_PKG=("curl" "git" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config" "libcap2-bin")
-
-##
-# Running a command with sudo permissions
-##
-permission() {
-    if ! sudo -n true 2>/dev/null; then
-        echo -e "\e[33mWARNING\e[0m : Root permissions are needed"
-        if ! sudo "$@"; then
-            echo -e "\e[31mERROR\e[0m : Failed to obtain root permissions."
-            exit 1
-        fi
-    fi
-}
+DEP_PKG=("curl" "git" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config")
 
 ##
 # Check and install potentially missing system dependencies with APT manager.

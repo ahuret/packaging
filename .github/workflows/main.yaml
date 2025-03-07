@@ -12,10 +12,4 @@ jobs:
       name: "alumet"
       version: 0.8
       revision: 1
-
-      distro: "stable"
-      urgency: "medium"
-      note: "Last release"
-
-      author: "Guillaume Raffin"
-      mail: "theelectronwill@gmail.com"
+      distro: "testing"
