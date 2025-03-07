@@ -18,23 +18,216 @@ on:
 jobs:
   packaging:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
-        os: ["fedora:40"]
+        #package-os: ["fc42", "ubi8.3", "ubi9.5", "debian_12", "ubuntu_25.04"]
+        package-os: ["debian_12", "ubuntu_25.04"]
+        include:
+          #- package-os: fc42
+          #  package-type: rpm
+          #  builder-image: ""
+          #  base-image: fedora:42
+          #  dockerfile: "fedora/Dockerfile"
+
+          #- package-os: ubi8.3 # TODO PASS TO ubi-8.10
+          #  package-type: rpm
+          #  builder-image: registry.access.redhat.com/ubi8:8.10
+          #  base-image: registry.access.redhat.com/ubi8-micro:8.10
+          #  dockerfile: "ubi/Dockerfile"
+          #  libssl-version: 1.1
+          #  libcrypto-version: 1.1
+          #  libz-version: 1
+
+          #- package-os: ubi9.5
+          #  package-type: rpm
+          #  builder-image: registry.access.redhat.com/ubi9:9.5
+          #  base-image: registry.access.redhat.com/ubi9-micro:9.5
+          #  dockerfile: "ubi/Dockerfile"
+          #  latest_tag: true
+          #  libssl-version: 3
+          #  libcrypto-version: 3
+          #  libz-version: 1
+
+          - package-os: debian_12
+            package-type: deb
+            builder-image: ""
+            base-image: debian:12-slim
+            dockerfile: "debian/Dockerfile"
+
+          - package-os: ubuntu_25.04
+            package-type: deb
+            builder-image: ""
+            base-image: ubuntu:25.04
+            dockerfile: "ubuntu/Dockerfile"
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: ahuret/packaging
-          fetch-tags: 'true'
-          ref: 'ci/create-rpm-package'
-          path: 'packaging'
-      
-      - name: Download alumet RPM artifact
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup the default architecture name
+        run: echo "ARCH=${{ inputs.target-architecture }}" >> $GITHUB_ENV
+
+      - name: Manage ARCH naming for x86_64 (DEB)
+        if: env.ARCH == 'x86_64' && matrix.package-type == 'deb'
+        run: echo "ARCH=amd64" >> $GITHUB_ENV
+
+      - run: echo "${{ matrix.package-type }}"
+
+      - name: Define the dependency artifact name (RPM)
+        if: matrix.package-type == 'rpm'
+        run: echo "DEPS_ARTIFACT_FILE=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ env.ARCH }}.rpm" >> $GITHUB_ENV
+
+      - name: Define the dependency artifact name (DEB)
+        if: matrix.package-type == 'deb'
+        run: echo "DEPS_ARTIFACT_FILE=alumet-agent_${{ inputs.build-version }}-${{ inputs.release-version }}_${{ env.ARCH }}_${{ matrix.package-os }}.deb" >> $GITHUB_ENV
+
+      - name: Define the output artifact name
+        run: echo "OUTPUT_ARTIFACT_NAME=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ inputs.target-architecture }}.docker.tar" >> $GITHUB_ENV
+
+      - name: Create the dependency artifacts directory
+        run: mkdir -p build/deps-artifacts
+
+      - name: Download $ARTIFACT_NAME (RPM)
+        if: matrix.package-type == 'rpm'
         uses: actions/download-artifact@v4
         with:
-          path: theartifacts
+          name: ${{ env.DEPS_ARTIFACT_FILE }}
+          path: build/deps-artifacts/
+          run-id: "13923702839" # NOTE! FOR RPM TESTS PURPOSE
+          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+          repository: AngeCyp/alumet-testing # NOTE! FOR TESTS PURPOSE
 
-      - name: test1
-        run: ls -la
-      - name: test2
-        run: ls theartifacts -la
+      - name: Download $ARTIFACT_NAME (DEB)
+        if: matrix.package-type == 'deb'
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.DEPS_ARTIFACT_FILE }}
+          path: build/deps-artifacts/
+          run-id: "13928393453" # NOTE! FOR DEBIAN TESTS PURPOSE
+          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+          repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
+
+      - name: Create docker image output dir
+        run: mkdir -p build/docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up image tags
+        run: |
+          TAGS="ghcr.io/${{ github.repository_owner }}/alumet-agent:${{ inputs.build-version }}-${{ inputs.release-version }}_${{ matrix.package-os }}"
+          if [ "${{ matrix.latest_tag }}" == "true" ]; then
+            TAGS="$TAGS,ghcr.io/${{ github.repository_owner }}/alumet-agent:latest"
+          fi
+          echo "TAGS=$TAGS" >> $GITHUB_ENV
+          echo "Images tags: $TAGS" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build image using ${{ matrix.dockerfile }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          file: docker/${{ matrix.dockerfile }}
+          build-args: |
+            ALUMET_VERSION=${{ inputs.build-version }}
+            BUILDER_IMAGE=${{ matrix.builder-image }}
+            BASE_IMAGE=${{ matrix.base-image }}
+            ARTIFACT_DIR=build/deps-artifacts
+            ARTIFACT_FILE=${{ env.DEPS_ARTIFACT_FILE }}
+            LIBSSL_VERSION=${{ matrix.libssl-version }}
+            LIBCRYPTO_VERSION=${{ matrix.libcrypto-version }}
+            LIBZ_VERSION=${{ matrix.libz-version }}
+          outputs: type=docker,dest=build/docker/${{ env.OUTPUT_ARTIFACT_NAME }}
+          tags: ${{ env.TAGS }}
+        env:
+          DOCKER_BUILD_SUMMARY: false
+
+      - name: Upload docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OUTPUT_ARTIFACT_NAME }}
+          path: ./build/docker/${{ env.OUTPUT_ARTIFACT_NAME }}
+
+  testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        #package-os: ["fc42", "ubi8.3", "ubi9.5", "debian_12", "ubuntu_25.04"]
+        package-os: ["debian_12", "ubuntu_25.04"]
+    needs:
+      - packaging
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Create docker artifacts directory
+        run: mkdir docker-artifacts
+
+      - name: Define the docker artifact name
+        run: echo "DOCKER_ARTIFACT_NAME=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ inputs.target-architecture }}.docker.tar" >> $GITHUB_ENV
+
+      - name: Download docker images artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.DOCKER_ARTIFACT_NAME }}
+          path: ./docker-artifacts
+          #run-id: "13927676895" # NOTE! FOR TESTS PURPOSE
+          #github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+      
+      - name: Install Goss / Dgoss
+        run: |
+          curl -fsSL https://goss.rocks/install | sh
+
+      - name: Run Dgoss tests
+        run: |
+          image_sha=$(docker load -q -i ./docker-artifacts/${{ env.DOCKER_ARTIFACT_NAME }} | awk -F '{ print $3 }' | head -1)
+          export GOSS_FILE=.github/dgoss_validate.yaml
+          #set -o pipefail
+          dgoss run --cap-add=perfmon --cap-add=sys_nice $image_sha | tee ${{ matrix.package-os }}-dgoss_tests_report.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload tests reports
+        if: always() # never skip to have file even in case of test failure
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package-os }}-dgoss_tests_report.txt
+          path: ${{ matrix.package-os }}-dgoss_tests_report.txt
+
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - testing
+    steps:
+
+      - name: Create docker artifacts directory
+        run: mkdir docker-artifacts
+
+      - name: Download docker images artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "**/*.docker.tar"
+          path: ./docker-artifacts
+          merge-multiple: true
+#          run-id: "13903660797" # NOTE! FOR TESTS PURPOSE
+#          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push images
+        run: |
+          tars=$(find ./docker-artifacts -type f)
+          for tar in $tars
+            do
+              image_tags=$(docker load -q -i $tar | sed 's/Loaded image: //g')
+              for image_tag in $image_tags
+                do
+                  docker push $image_tag
+                done
+            done

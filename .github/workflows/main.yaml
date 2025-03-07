@@ -12,6 +12,11 @@ on:
         required: false
         type: number
         default: 1
+      target-architecture:
+        description: 'The target architecture'
+        required: false
+        type: string
+        default: x86_64
 
 jobs:
   rpm:
@@ -22,5 +27,7 @@ jobs:
       release-version: ${{ github.event.inputs.release || '1' }}
   docker:
     uses: ./.github/workflows/build_docker.yaml
-    needs:
-      - rpm
+    with:
+      target-architecture: ${{ github.event.inputs.target-architecture }}
+      build-version: ${{ github.event.inputs.version }}
+      release-version: ${{ github.event.inputs.release  }}
