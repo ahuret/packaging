@@ -106,14 +106,12 @@ jobs:
               exit 1
           fi
 
-          cd "${{ env.ALUMET_DIR }}"
-
       - uses: actions/checkout@v4
         with:
           repository: alumet-dev/alumet
           fetch-tags: 'true'
           ref: 'main'
-          path: 'alumet'
+          path: '${{ env.ALUMET_DIR }}/alumet'
 
       # Package construction with dch and dpkg-buildpackage :
       #  - 'dch' allow to create the debian/changelog file used in Debian package for some dynamic elements
@@ -127,7 +125,7 @@ jobs:
           ls -al
           pwd
 
-          cd "${{ inputs.name }}"
+          cd "${{ env.ALUMET_DIR }}/alumet"
 
           ls -al
           pwd
