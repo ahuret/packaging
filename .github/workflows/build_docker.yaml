@@ -20,21 +20,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: ["fedora:40"]
+        distro: ["fedora:40"]
+        include:
+          - image: fedora:40
+            dockerfile: "Dockerfile.rpm"
     steps:
-      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.image }} image using ${{ matrix.dockerfile }}
+        uses: docker/build-push-action@v6
         with:
-          repository: ahuret/packaging
-          fetch-tags: 'true'
-          ref: 'ci/create-rpm-package'
-          path: 'packaging'
-      
-      - name: Download alumet RPM artifact
-        uses: actions/download-artifact@v4
-        with:
-          path: theartifacts
-
-      - name: test1
-        run: ls -la
-      - name: test2
-        run: ls theartifacts -la
+          push: false
+          file: docker/${{ matrix.dockerfile }}
+          build-args: |
+            IMAGE=${{ matrix.image }}
+        env:
+          DOCKER_BUILD_SUMMARY: false
+      #- uses: actions/checkout@v4
+      #  with:
+      #    repository: ahuret/packaging
+      #    fetch-tags: 'true'
+      #    ref: 'ci/create-rpm-package'
+      #    path: 'packaging'
+      #
+      #- name: Download alumet RPM artifact
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    path: theartifacts
