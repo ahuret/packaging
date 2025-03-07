@@ -47,7 +47,6 @@ on:
         default: "Last release"
 
 env:
-  url: "https://github.com/alumet-dev/alumet.git"
   author: "Guillaume Raffin"
   mail: "theelectronwill@gmail.com"
   dep_install: "build-essential devscripts debhelper"
@@ -128,7 +127,7 @@ jobs:
           ls -al
           pwd
 
-          cd "${{ env.ALUMET_DIR }}"
+          cd "${{ inputs.name }}"
 
           ls -al
           pwd
