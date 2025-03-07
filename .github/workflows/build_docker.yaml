@@ -30,10 +30,10 @@ jobs:
             dockerfile: "Dockerfile.fedora"
             artifact-name: "alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.fedora-41.${{ inputs.target-architecture }}.tar"
     steps:
+      - run: echo "ARTIFACT_NAME ${{ matrix.artifact-name }}"
+
       - name: Prepare docker image output dir
         run: mkdir -p /tmp/images/
-
-      - run: echo "${{ matrix.artifact-name }}"
 
       - name: Build ${{ matrix.base-image }} image using ${{ matrix.dockerfile }}
         uses: docker/build-push-action@v6
