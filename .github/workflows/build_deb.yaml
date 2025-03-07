@@ -122,10 +122,7 @@ jobs:
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
 
-          ls -al
-          pwd
-
-          cd "${{ env.ALUMET_DIR }}/alumet"
+          cd "${{ env.ALUMET_DIR }}"
 
           ls -al
           pwd
