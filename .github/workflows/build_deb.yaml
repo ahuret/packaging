@@ -111,7 +111,6 @@ jobs:
           fi
 
           cd "$dir"
-          git clone --depth 1 "${{ env.url }}"
 
       # Package construction with dch and dpkg-buildpackage :
       #  - 'dch' allow to create the debian/changelog file used in Debian package for some dynamic elements
@@ -131,11 +130,7 @@ jobs:
 
           dpkg-buildpackage -us -uc
 
-      - name: Install the 'Alumet' DEB package created
-        shell: bash
-        run: |
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
-          apt install ./"${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
 
       - name: Upload artifact agent
         uses: actions/upload-artifact@v4

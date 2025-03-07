@@ -13,3 +13,4 @@ jobs:
       version: 0.8
       revision: 1
       distro: "testing"
+      urgency: "medium"
