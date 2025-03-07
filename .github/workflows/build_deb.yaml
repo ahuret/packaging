@@ -70,10 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: alumet-dev/alumet
           fetch-tags: 'true'
-          ref: 'main'
-          path: 'alumet-X.X'
 
       - name: Set dynamic environment variables
         run: |
@@ -112,6 +109,13 @@ jobs:
 
           cd "${{ env.ALUMET_DIR }}"
 
+      - uses: actions/checkout@v4
+        with:
+          repository: alumet-dev/alumet
+          fetch-tags: 'true'
+          ref: 'main'
+          path: 'alumet'
+
       # Package construction with dch and dpkg-buildpackage :
       #  - 'dch' allow to create the debian/changelog file used in Debian package for some dynamic elements
       #  - 'dpkg-buildpackage' build the Debian package according the changelog
@@ -121,9 +125,14 @@ jobs:
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
 
-          cd "${{ env.ALUMET_DIR }}"
           ls -al
           pwd
+
+          cd "${{ env.ALUMET_DIR }}"
+
+          ls -al
+          pwd
+
           chmod -R 775 script
           rm -f debian/changelog
 
