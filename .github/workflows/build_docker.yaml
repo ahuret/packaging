@@ -25,15 +25,24 @@ jobs:
           - image: fedora:40
             dockerfile: "Dockerfile.rpm"
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Prepare docker image output dir
+        run: mkdir /tmp/images/
       - name: Build ${{ matrix.image }} image using ${{ matrix.dockerfile }}
         uses: docker/build-push-action@v6
         with:
           push: false
-          file: docker/${{ matrix.dockerfile }}
+          context: .
+          file: docker/Dockerfile.rpm
           build-args: |
             IMAGE=${{ matrix.image }}
+          outputs: type=tar,dest=/tmp/images/image.tar
         env:
           DOCKER_BUILD_SUMMARY: false
+
+      - name: TESTTEST
+        run: ls -la
       #- uses: actions/checkout@v4
       #  with:
       #    repository: ahuret/packaging
