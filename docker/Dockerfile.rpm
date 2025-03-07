@@ -1,3 +1,3 @@
-ARG IMAGE
+ARG image=${IMAGE}
 
-FROM ${IMAGE}
+FROM $image
