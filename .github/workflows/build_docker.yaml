@@ -25,15 +25,12 @@ jobs:
           - image: fedora:40
             dockerfile: "Dockerfile.rpm"
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
       - name: Prepare docker image output dir
-        run: mkdir /tmp/images/
+        run: mkdir -p /tmp/images/
       - name: Build ${{ matrix.image }} image using ${{ matrix.dockerfile }}
         uses: docker/build-push-action@v6
         with:
           push: false
-          context: .
           file: docker/Dockerfile.rpm
           build-args: |
             IMAGE=${{ matrix.image }}
@@ -42,7 +39,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
 
       - name: TESTTEST
-        run: ls -la
+        run: ls -la /tmp/images
       #- uses: actions/checkout@v4
       #  with:
       #    repository: ahuret/packaging
@@ -50,7 +47,7 @@ jobs:
       #    ref: 'ci/create-rpm-package'
       #    path: 'packaging'
       #
-      #- name: Download alumet RPM artifact
-      #  uses: actions/download-artifact@v4
-      #  with:
-      #    path: theartifacts
+      - name: Download alumet RPM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: /tmp/images
