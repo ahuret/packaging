@@ -56,7 +56,7 @@ env:
 jobs:
   packaging:
 
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
@@ -142,7 +142,7 @@ jobs:
   testing:
     needs: packaging
 
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
