@@ -20,34 +20,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ["fedora:40", "fedora:41"]
+        base-image: ["fedora:40", "fedora:41"]
         include:
-          - image: fedora:40
+          - base-image: fedora:40
             dockerfile: "Dockerfile.fedora"
-            artifact_dir: "/tmp/images/fedora-40"
-            artifact_name: "fedora-40.tar"
+            artifact-name: "alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.fedora-40.${{ inputs.target-architecture }}.tar"
 
           - image: fedora:41
             dockerfile: "Dockerfile.fedora"
-            artifact_dir: "/tmp/images/fedora-41"
-            artifact_name: "fedora-41.tar"
+            artifact-name: "alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.fedora-41.${{ inputs.target-architecture }}.tar"
     steps:
       - name: Prepare docker image output dir
-        run: mkdir -p ${{ matrix.artifact_dir }}
+        run: mkdir -p /tmp/images/
 
-      - name: Build ${{ matrix.image }} image using ${{ matrix.dockerfile }}
+      - run: echo "${{ matrix.artifact-name }}"
+
+      - name: Build ${{ matrix.base-image }} image using ${{ matrix.dockerfile }}
         uses: docker/build-push-action@v6
         with:
           push: false
-          file: docker/Dockerfile.rpm
+          file: docker/${{ matrix.dockerfile }}
           build-args: |
-            IMAGE=${{ matrix.image }}
-          outputs: type=tar,dest=${{ matrix.artifact_dir }}/${{ matrix.artifact_name }}
+            BASE_IMAGE=${{ matrix.base-image }}
+          outputs: type=tar,dest=/tmp/images/${{ matrix.artifact-name }}
         env:
           DOCKER_BUILD_SUMMARY: false
 
       - name: Upload alumet RPM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_dir }}/${{ matrix.artifact_name }}
+          name: ${{ inputs.target-architecture }}/alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.os }}.${{ inputs.target-architecture }}.tar
+          path: /tmp/images/${{ matrix.artifact-name }}
+          #path: ./build/docker/${{ inputs.target-architecture }}/alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.os }}.${{ inputs.target-architecture }}.tar
