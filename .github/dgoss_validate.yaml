@@ -1,0 +1,21 @@
+---
+group:
+  alumet:
+    exists: true
+user:
+  alumet:
+    exists: true
+file:
+  /etc/alumet/alumet-config.toml:
+    exists: true
+    owner: alumet
+    group: alumet
+  /usr/bin/alumet-agent:
+    exists: true
+    owner: alumet
+    group: alumet
+
+command:
+  'run alumet-agent':
+    exec: "/usr/bin/alumet-agent --config /etc/alumet/alumet-config.toml --plugins csv,perf,procfs,socket-control exec -- sleep 1 && cat alumet-output.csv"
+    exit-status: 0

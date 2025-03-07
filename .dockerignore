@@ -1,0 +1,5 @@
+# .dockerignore will exclude listed files or directories from the build context
+.git
+.github
+rpm
+debian

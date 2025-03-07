@@ -1,0 +1,202 @@
+---
+name: Build Docker images pipeline
+on:
+  workflow_call:
+    inputs:
+      target-architecture:
+        description: 'What is the architecture we want to build for'
+        required: true
+        type: string
+      build-version:
+        description: 'What is the version used to build and tag the RPMs'
+        required: true
+        type: string
+      release-version:
+        description: 'What is the release version used to build and tag the RPMs'
+        required: true
+        type: string
+jobs:
+#  packaging:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 30
+#    strategy:
+#      matrix:
+#        #package-os: ["fedora.40", "fedora.41", "fedora.42", "ubi.8.3", "ubi.9.5"]
+#        package-os: ["debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
+#        include:
+#          #- package-os: fedora.40
+#          #  builder-image: ""
+#          #  base-image: fedora:40
+#          #  dockerfile: "fedora/Dockerfile"
+#
+#          #- package-os: fedora.41
+#          #  builder-image: ""
+#          #  base-image: fedora:41
+#          #  dockerfile: "fedora/Dockerfile"
+#
+#          #- package-os: fedora.42
+#          #  builder-image: ""
+#          #  base-image: fedora:42
+#          #  dockerfile: "fedora/Dockerfile"
+#
+#          #- package-os: ubi.8.3 # TODO PASS TO ubi-8.10
+#          #  builder-image: redhat/ubi8:8.3
+#          #  base-image: redhat/ubi8-minimal:8.3
+#          #  dockerfile: "ubi/Dockerfile"
+#
+#          #- package-os: ubi.9.5
+#          #  builder-image: redhat/ubi9:9.5
+#          #  base-image: redhat/ubi9-minimal:9.5
+#          #  dockerfile: "ubi/Dockerfile"
+#
+#          - package-os: debian_11
+#            package-type: deb
+#            builder-image: ""
+#            base-image: debian:11-slim
+#            dockerfile: "debian/Dockerfile"
+#
+#          - package-os: debian_12
+#            package-type: deb
+#            builder-image: ""
+#            base-image: debian:12-slim
+#            dockerfile: "debian/Dockerfile"
+#
+#          - package-os: ubuntu_20.04
+#            package-type: deb
+#            builder-image: ""
+#            base-image: ubuntu:20.04
+#            dockerfile: "ubuntu/Dockerfile"
+#
+#          - package-os: ubuntu_22.04
+#            package-type: deb
+#            builder-image: ""
+#            base-image: ubuntu:22.04
+#            dockerfile: "ubuntu/Dockerfile"
+#
+#          - package-os: ubuntu_24.04
+#            package-type: deb
+#            builder-image: ""
+#            base-image: ubuntu:24.04
+#            dockerfile: "ubuntu/Dockerfile"
+#
+#          - package-os: ubuntu_25.04
+#            package-type: deb
+#            builder-image: ""
+#            base-image: ubuntu:25.04
+#            dockerfile: "ubuntu/Dockerfile"
+#    steps:
+#      - name: Checkout the repository
+#        uses: actions/checkout@v4
+#
+#      - name: Setup the default architecture name
+#        run: echo "ARCH=${{ inputs.target-architecture }}" >> $GITHUB_ENV
+#
+#      - name: Manage ARCH naming for X86_64 (DEB)
+#        if: env.ARCH == 'X86_64'
+#        run: echo "ARCH=amd64" >> $GITHUB_ENV
+#
+#      - name: Define the dependency artifact name (RPM)
+#        if: matrix.package-type == 'rpm'
+#        run: echo "DEPS_ARTIFACT_FILE=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ env.ARCH }}.rpm" >> $GITHUB_ENV
+#
+#      - name: Define the dependency artifact name (DEB)
+#        if: matrix.package-type == 'deb'
+#        run: echo "DEPS_ARTIFACT_FILE=alumet-agent_${{ inputs.build-version }}-${{ inputs.release-version }}_${{ env.ARCH }}_${{ matrix.package-os }}.deb" >> $GITHUB_ENV
+#
+#      - name: Define the output artifact name
+#        run: echo "OUTPUT_ARTIFACT_NAME=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ inputs.target-architecture }}.docker.tar" >> $GITHUB_ENV
+#
+#      - name: Create the dependency artifacts directory
+#        run: mkdir -p build/deps-artifacts
+#
+#      - name: Download $ARTIFACT_NAME (RPM)
+#        if: matrix.package-type == 'rpm'
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.DEPS_ARTIFACT_FILE }}
+#          path: build/deps-artifacts/
+#          run-id: "13790209453" # NOTE! FOR RPM TESTS PURPOSE
+#          repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
+#
+#      - name: Download $ARTIFACT_NAME (DEB)
+#        if: matrix.package-type == 'deb'
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.DEPS_ARTIFACT_FILE }}
+#          path: build/deps-artifacts/
+#          run-id: "13854969332" # NOTE! FOR DEBIAN TESTS PURPOSE
+#          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+#          repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
+#
+#      - name: Create docker image output dir
+#        run: mkdir -p build/docker
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build image using ${{ matrix.dockerfile }}
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          push: false
+#          file: docker/${{ matrix.dockerfile }}
+#          build-args: |
+#            BUILDER_IMAGE=${{ matrix.builder-image }}
+#            BASE_IMAGE=${{ matrix.base-image }}
+#            ARTIFACT_DIR=build/deps-artifacts
+#            ARTIFACT_FILE=${{ env.DEPS_ARTIFACT_FILE }}
+#          outputs: type=docker,dest=build/docker/${{ env.OUTPUT_ARTIFACT_NAME }}
+#        env:
+#          DOCKER_BUILD_SUMMARY: false
+#
+#      - name: Upload docker image artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: ${{ env.OUTPUT_ARTIFACT_NAME }}
+#          path: ./build/docker/${{ env.OUTPUT_ARTIFACT_NAME }}
+
+  testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        #package-os: ["fedora.40", "fedora.41", "fedora.42", "ubi.8.3", "ubi.9.5"]
+        package-os: ["debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
+#    needs:
+#      - packaging
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Create docker artifacts directory
+        run: mkdir docker-artifacts
+
+      - name: Define the docker artifact name
+        run: echo "DOCKER_ARTIFACT_NAME=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ inputs.target-architecture }}.docker.tar" >> $GITHUB_ENV
+
+      - name: Download docker images artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.DOCKER_ARTIFACT_NAME }}
+          path: ./docker-artifacts
+          run-id: "13858706726" # NOTE! FOR TESTS PURPOSE
+          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+      
+      - name: Install Goss / Dgoss
+        run: |
+          curl -fsSL https://goss.rocks/install | sh
+
+      - name: Run Dgoss tests
+        run: |
+          image_sha=$(docker load -q -i ./docker-artifacts/${{ env.DOCKER_ARTIFACT_NAME }} | grep -oE "sha256:[a-z0-9]+")
+          export GOSS_FILE=.github/dgoss_validate.yaml
+          set -o pipefail
+          dgoss run --cap-add=perfmon --cap-add=sys_nice $image_sha | tee ${{ matrix.package-os }}-dgoss_tests_report.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload tests reports
+        if: always() # never skip to have file even in case of test failure
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package-os }}-dgoss_tests_report.txt
+          path: ${{ matrix.package-os }}-dgoss_tests_report.txt

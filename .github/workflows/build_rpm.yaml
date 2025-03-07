@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: alumet-dev/packaging
+          repository: ahuret/packaging
           fetch-tags: 'true'
           ref: 'ci/create-rpm-package'  # TODO Change on merge
           path: 'packaging'
@@ -57,10 +57,17 @@ jobs:
     container:
       image: ${{ matrix.os }}
     steps:
+      #- name: Install node to Fedora (needed for act)
+      #  if: contains(matrix.os, 'fedora')
+      #  run: dnf install -y nodejs  # Install Node.js inside Fedora
+
+      #- name: Install node to Fedora (needed for act)
+      #  if: ${{ ! contains(matrix.os, 'fedora') }}
+      #  run: yum install -y nodejs  # Install Node.js inside Fedora
 
       - uses: actions/checkout@v4
         with:
-          repository: alumet-dev/packaging
+          repository: ahuret/packaging
           fetch-tags: 'true'
           ref: 'ci/create-rpm-package'
           path: 'packaging'
