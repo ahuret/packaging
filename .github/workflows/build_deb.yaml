@@ -132,7 +132,9 @@ jobs:
 
           dpkg-buildpackage -us -uc
 
-          ls al
+          ls -al
+          cd ..
+          ls -al
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
 
       - name: Upload artifact agent
