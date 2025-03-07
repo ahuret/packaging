@@ -38,7 +38,7 @@ mkdir -p %{_builddir}/bin/
 cp packaging/rpm/alumet.sh %{_builddir}/alumet-agent
 cp packaging/rpm/alumet.service %{_builddir}/alumet.service
 cd alumet/agent
-CARGO_TARGET_DIR=%{_builddir}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
+CARGO_TARGET_DIR=%{_builddir}/bin/ ALUMET_AGENT_RELEASE=true cargo build -j 5 --release -p alumet-agent --bins --all-features
 ALUMET_CONFIG=%{_builddir}/alumet-config.toml %{_builddir}/bin/release/alumet-agent --plugins csv,perf,procfs,socket-control config regen 
 
 %install
