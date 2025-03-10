@@ -29,6 +29,7 @@ particularly if you're not on fedora.
 
 ```bash
 sudo rpm -i <rpm file>
+sudo -E zypper install --allow-unsigned-rpm temp_rpm/alumet-agent-0.6.1-1.fedora.40.x86_64.rpm
 ```
 
 # How to uninstall
@@ -50,12 +51,14 @@ sudo rpm -e <package>
 Content of the RPM (using: **rpm -qlp file.rpm**)
 
 ```bash
-/usr/bin/alumet-local-agent
+/etc/alumet
+/etc/alumet/alumet-config.toml
+/usr/bin/alumet-agent
 /usr/lib/.build-id
-/usr/lib/.build-id/1e
-/usr/lib/.build-id/1e/8470891dc74ab9381d5dc4d37e4a4da9cd9d26
-/usr/lib/alumet-local-agent_bin
-/var/lib/alumet
+/usr/lib/.build-id/43
+/usr/lib/.build-id/43/b1368a4c6879892cb3c8ae663d68b8640ff458
+/usr/lib/alumet-agent
+/usr/lib/systemd/system/alumet.service
 ```
 
 # Use the reusable workflow to build RPMs
@@ -83,3 +86,6 @@ jobs:
       build-version: 0.6.1
       release-version: 1
 ```
+
+When compiled for fedora 40 for x86_64 architecture, with this input, the resulting package will be
+`alumet-agent-0.6.1-1.fedora.40.x86_64.rpm`

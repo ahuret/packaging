@@ -6,7 +6,7 @@ Name:           alumet
 Version:        %{version}
 Release:        %{release}
 Summary:        A tool for measuring the energy consumption and performance metrics
-License:        EUPL
+License:        EUPL-1.2
 Url:            https://github.com/alumet-dev/alumet
 Source:         %{name}.tar.gz
 BuildArch:      x86_64
@@ -36,7 +36,7 @@ KERNEL_MINOR=$(echo $KERNEL_VERSION | cut -d'.' -f2)
 %build
 mkdir -p %{_builddir}/bin/
 cp packaging/rpm/alumet.sh %{_builddir}/alumet-agent
-cp packaging/rpm/alumet.service %{_builddir}/alumet.service
+cp packaging/alumet.service %{_builddir}/alumet.service
 cd alumet/agent
 CARGO_TARGET_DIR=%{_builddir}/bin/ ALUMET_AGENT_RELEASE=true cargo build -j 5 --release -p alumet-agent --bins --all-features
 ALUMET_CONFIG=%{_builddir}/alumet-config.toml %{_builddir}/bin/release/alumet-agent --plugins csv,perf,procfs,socket-control config regen 
@@ -48,7 +48,7 @@ install -D -m 0555 "%{_builddir}/bin/release/alumet-agent" "%{buildroot}%{_exec_
 install -D -m 0755 "%{_builddir}/alumet-agent" "%{buildroot}%{_bindir}/"
 mkdir -p %{buildroot}%{_sysconfdir}/alumet
 chmod 777 %{buildroot}%{_sysconfdir}/alumet
-install -D -m 0766 "%{_builddir}/alumet-config.toml" "%{buildroot}%{_sysconfdir}/alumet/alumet-config.toml"
+install -D -m 0644 "%{_builddir}/alumet-config.toml" "%{buildroot}%{_sysconfdir}/alumet/alumet-config.toml"
 install -D -m 0644 "%{_builddir}/alumet.service" "%{buildroot}%{_exec_prefix}/lib/systemd/system/alumet.service"
 
 %files agent
