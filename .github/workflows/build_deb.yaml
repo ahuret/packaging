@@ -74,6 +74,7 @@ jobs:
           echo "OS_NAME=$(grep '^ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "OS_VERSION=$(grep '^VERSION_ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "ALUMET_DIR=${{ inputs.name }}-${{ inputs.version }}" >> $GITHUB_ENV
+          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
 
       # Installation of dependencies required for the package compilation
       - name: Check OS package required dependencies for package construction
@@ -114,7 +115,6 @@ jobs:
           cd "${{ env.ALUMET_DIR }}"
 
           chmod -R 775 script
-          rm -f debian/changelog
 
           tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
           dch --create --package "${{ inputs.name }}" --newversion "${{ inputs.version }}"-"${{ inputs.revision }}" --distribution "${{ inputs.distro }}" --urgency "${{ inputs.urgency }}" "${{ inputs.note }}"
@@ -122,14 +122,13 @@ jobs:
           dpkg-buildpackage -us -uc
 
           cd ..
-          mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}"_"${{ env.OS_NAME }}"_"${{ env.OS_VERSION }}".deb
+          mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ env.DEB_NAME }}"
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb 
-          path: |
-            ${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb
+          name: ${{ env.DEB_NAME }}
+          path: ${{ env.DEB_NAME }}
 
   testing:
     needs: packaging
@@ -160,6 +159,7 @@ jobs:
         run: |
           apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y systemctl libcap2-bin openssl
 
+      # Check after package installation on OS the files location, and the validity of the service daemon
       - name: Testing 'Alumet' package execution after its deployment on system
         shell: bash
         run: |
@@ -171,5 +171,8 @@ jobs:
           ls -l /var/lib/alumet/alumet-config.toml
 
           alumet exec sleep 1
+
           systemctl start alumet.service
           systemctl status alumet.service
+          systemctl is-active alumet.service
+          systemctl stop alumet.service
