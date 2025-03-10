@@ -114,7 +114,7 @@ jobs:
           cd "${{ env.ALUMET_DIR }}"
 
           chmod -R 775 script
-          rm -f DEBIAN/changelog
+          rm -f debian/changelog
 
           tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
           dch --create --package "${{ inputs.name }}" --newversion "${{ inputs.version }}"-"${{ inputs.revision }}" --distribution "${{ inputs.distro }}" --urgency "${{ inputs.urgency }}" "${{ inputs.note }}"

@@ -23,7 +23,7 @@ compile(){
 dispatch(){
     cp $FOLDER/target/release/$BIN $FILES/ || exit
 
-    chmod 775 DEBIAN/preinst DEBIAN/postinst || exit
+    chmod 775 debian/preinst debian/postinst || exit
     chmod 775 $FILES/$BIN $FILES/$CMD || exit
     chmod 775 $FILES/$CONF || exit
 
