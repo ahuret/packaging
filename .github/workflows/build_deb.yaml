@@ -94,6 +94,8 @@ jobs:
               exit 1
           fi
 
+          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
+
       - uses: actions/checkout@v4
         with:
           repository: alumet-dev/alumet
@@ -109,7 +111,6 @@ jobs:
         run: |
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
-          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
 
           cd "${{ env.ALUMET_DIR }}"
           chmod -R 775 script
