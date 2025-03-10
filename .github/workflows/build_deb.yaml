@@ -83,8 +83,6 @@ jobs:
       - name: Alumet source code downloading from GitHub repository
         shell: bash
         run: |
-          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
-          echo "${{ env.DEB_NAME }}"
           base=$(find . -maxdepth 1 -type d -name "${{ inputs.name }}-*")
 
           if [ -d "$base" ]; then
@@ -111,9 +109,9 @@ jobs:
         run: |
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
+          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
 
           cd "${{ env.ALUMET_DIR }}"
-
           chmod -R 775 script
 
           tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
@@ -126,7 +124,7 @@ jobs:
           dpkg-buildpackage -us -uc
 
           cd ..
-          mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ env.DEB_NAME }}"
+          mv *.deb "${{ env.DEB_NAME }}"
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
@@ -176,5 +174,5 @@ jobs:
 
           systemctl start alumet.service
           systemctl status alumet.service
-          systemctl is-active alumet.service
+          #systemctl is-active alumet.service
           systemctl stop alumet.service

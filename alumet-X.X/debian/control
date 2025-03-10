@@ -4,6 +4,8 @@ Section: misc
 Priority: optional
 Standards-Version: 5.6.11
 Build-Depends: debhelper-compat (= 12)
+Homepage: https://alumet.dev/
+Vcs-Git: https://github.com/alumet-dev/alumet.git
 
 Package: alumet
 Architecture: amd64
