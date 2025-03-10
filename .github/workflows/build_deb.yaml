@@ -74,7 +74,6 @@ jobs:
           echo "OS_NAME=$(grep '^ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "OS_VERSION=$(grep '^VERSION_ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "ALUMET_DIR=${{ inputs.name }}-${{ inputs.version }}" >> $GITHUB_ENV
-          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
 
       # Installation of dependencies required for the package compilation
       - name: Check OS package required dependencies for package construction
@@ -84,6 +83,7 @@ jobs:
       - name: Alumet source code downloading from GitHub repository
         shell: bash
         run: |
+          echo "DEB_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_ENV
           echo "${{ env.DEB_NAME }}"
           base=$(find . -maxdepth 1 -type d -name "${{ inputs.name }}-*")
 
@@ -127,7 +127,6 @@ jobs:
 
           cd ..
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ env.DEB_NAME }}"
-          ls -al
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
