@@ -78,13 +78,13 @@ jobs:
 
       # Installation of dependencies required for the package compilation
       - name: Check OS package required dependencies for package construction
-        run: |
-          apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential devscripts debhelper
+        run: apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential devscripts debhelper
 
       # Rename the alumet-X.X path with correct version before to enter in it
       - name: Alumet source code downloading from GitHub repository
         shell: bash
         run: |
+          echo "${{ env.DEB_NAME }}"
           base=$(find . -maxdepth 1 -type d -name "${{ inputs.name }}-*")
 
           if [ -d "$base" ]; then
@@ -117,12 +117,17 @@ jobs:
           chmod -R 775 script
 
           tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
-          dch --create --package "${{ inputs.name }}" --newversion "${{ inputs.version }}"-"${{ inputs.revision }}" --distribution "${{ inputs.distro }}" --urgency "${{ inputs.urgency }}" "${{ inputs.note }}"
+          dch --create --package "${{ inputs.name }}" \
+              --newversion "${{ inputs.version }}-${{ inputs.revision }}" \
+              --distribution "${{ inputs.distro }}" \
+              --urgency "${{ inputs.urgency }}" \
+              "${{ inputs.note }}"
 
           dpkg-buildpackage -us -uc
 
           cd ..
           mv "${{ inputs.name }}"_"${{ inputs.version }}"-"${{ inputs.revision }}"_"${{ inputs.arch }}".deb "${{ env.DEB_NAME }}"
+          ls -al
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
@@ -155,9 +160,7 @@ jobs:
           merge-multiple: true
 
       - name: Check OS package required dependencies for package construction
-        shell: bash
-        run: |
-          apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y systemctl libcap2-bin openssl
+        run: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y systemctl libcap2-bin openssl
 
       # Check after package installation on OS the files location, and the validity of the service daemon
       - name: Testing 'Alumet' package execution after its deployment on system
