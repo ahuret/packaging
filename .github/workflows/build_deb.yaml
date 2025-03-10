@@ -49,8 +49,6 @@ on:
 env:
   author: "Guillaume Raffin"
   mail: "theelectronwill@gmail.com"
-  dep_install: "build-essential devscripts debhelper"
-  dep_test: "systemctl libcap2-bin openssl"
 
 jobs:
   packaging:
@@ -79,17 +77,8 @@ jobs:
 
       # Installation of dependencies required for the package compilation
       - name: Check OS package required dependencies for package construction
-        shell: bash
         run: |
-          apt update
-
-          dep_pkg=(${{ env.dep_install }})
-          for i in "${dep_pkg[@]}"; do
-              if ! dpkg -l | grep -q "^ii  $i "; then
-                  echo -e "\e[33mWARNING\e[0m : Packages '$i' required. Installation..."
-                  DEBIAN_FRONTEND=noninteractive apt-get install -y "$i"
-              fi
-          done
+          apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential devscripts debhelper
 
       # Rename the alumet-X.X path with correct version before to enter in it
       - name: Alumet source code downloading from GitHub repository
@@ -125,7 +114,7 @@ jobs:
           cd "${{ env.ALUMET_DIR }}"
 
           chmod -R 775 script
-          rm -f debian/changelog
+          rm -f DEBIAN/changelog
 
           tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
           dch --create --package "${{ inputs.name }}" --newversion "${{ inputs.version }}"-"${{ inputs.revision }}" --distribution "${{ inputs.distro }}" --urgency "${{ inputs.urgency }}" "${{ inputs.note }}"
@@ -169,15 +158,7 @@ jobs:
       - name: Check OS package required dependencies for package construction
         shell: bash
         run: |
-          apt update
-
-          dep_pkg=(${{ env.dep_test }})
-          for i in "${dep_pkg[@]}"; do
-              if ! dpkg -l | grep -q "^ii  $i "; then
-                  echo -e "\e[33mWARNING\e[0m : Packages '$i' required. Installation..."
-                  DEBIAN_FRONTEND=noninteractive apt-get install -y "$i"
-              fi
-          done
+          apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y systemctl libcap2-bin openssl
 
       - name: Testing 'Alumet' package execution after its deployment on system
         shell: bash
