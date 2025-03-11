@@ -1,10 +1,10 @@
 ---
 package:
-  alumet-agent:
+  alumet:
     installed: true
 
 service:
-  alumet-agent:
+  alumet:
     enabled: false
     running: false
 
@@ -13,7 +13,7 @@ file:
     exists: true
   /usr/lib/alumet-agent:
     exists: true
-  /usr/bin/alumet-agent:
+  /usr/bin/alumet:
     exists: true
   /usr/lib/systemd/system/alumet.service:
     exists: true

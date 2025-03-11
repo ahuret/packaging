@@ -155,7 +155,7 @@ jobs:
           sed -i 's/REVISION/${{ inputs.revision }}/g' ./debian/control
 
           # Create the archive
-          tar -czf ../"${{ inputs.name }}-agent"_"${{ inputs.version }}".orig.tar.gz .
+          tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
           dch --create --package "${{ inputs.name }}" \
               --newversion "${{ inputs.version }}-${{ inputs.revision }}" \
               --distribution "${{ inputs.distro }}" \
@@ -189,6 +189,9 @@ jobs:
       options: --cap-add=SYS_NICE --cap-add=PERFMON
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download DEB artifact
         id: download_deb
         uses: actions/download-artifact@v4
@@ -201,7 +204,8 @@ jobs:
         run: |
           apt update
           deb_file=$(find ${{ steps.download_rpm.outputs.download-path }} -name "*.deb" -print -quit)
-          apt install -y "$deb_file" curl
+          apt install -y curl
+          apt install -y "$deb_file"
 
       - name: Install Goss
         run: |
