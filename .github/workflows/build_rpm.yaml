@@ -125,7 +125,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
-          name: alumet-local-agent-${{ env.name }}-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
+          name: ${{ env.name }}-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
           path: |
             ./build/RPMS/${{ inputs.target-architecture }}/${{ env.name }}-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
 
