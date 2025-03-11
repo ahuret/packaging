@@ -1,4 +1,5 @@
-name : Build DEB pipeline
+---
+name: Build DEB pipeline
 
 on:
   workflow_call:
@@ -47,10 +48,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "debian:11", "debian:12", "ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04", "ubuntu:25.04" ]
-  
+        # os: ["debian:11", "debian:12", "ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04", "ubuntu:25.04"]
+        os: ["debian:12"]
+
     container:
       image: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -64,14 +70,13 @@ jobs:
           echo "ALUMET_DIR=${{ inputs.name }}-${{ inputs.version }}" >> $GITHUB_ENV
 
       # Installation of dependencies required for the package compilation
-      - name: Check OS package required dependencies for package construction
+      - name: Install dependencies
         shell: bash
         run: |
-          apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential devscripts debhelper
+          apt update && DEBIAN_FRONTEND=noninteractive apt install -y build-essential devscripts debhelper
 
       # Rename the alumet-X.X path with correct version before to enter in it
       - name: Alumet source code downloading from GitHub repository
-        shell: bash
         run: |
           base=$(find . -maxdepth 1 -type d -name "${{ inputs.name }}-*")
 
@@ -90,10 +95,47 @@ jobs:
           fetch-tags: 'true'
           ref: 'main'
           path: '${{ env.ALUMET_DIR }}/alumet'
-      
+
+      - name: Install Rust and dependencies
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y || exit
+
+          echo '. "$HOME/.cargo/env"' >> $HOME/.bashrc
+          . "$HOME/.cargo/env"
+          packages=("curl" "git" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config")
+          for package in "${packages[@]}"; do
+            if ! dpkg -l | grep -q "^ii  $package "; then
+              echo -e "\e[33mWARNING\e[0m : Packages '$package' required. Installation..."
+              apt install -y "$package" || exit
+            fi
+          done
+          rustup default stable
+
+      - name: Compile Alumet
+        run: |
+          . "$HOME/.cargo/env"
+          base=$(pwd)
+          cd ${{ env.ALUMET_DIR }}/alumet/agent
+          mkdir -p ${base}/bin/
+          CARGO_TARGET_DIR=${base}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
+          cp ${base}/bin/release/alumet-agent ${base}/${{ env.ALUMET_DIR }}/files/
+
+      - name: Create config file for Alumet
+        run: |
+          . "$HOME/.cargo/env"
+          ALUMET_CONFIG=${{ env.ALUMET_DIR }}/files/alumet-config.toml ./${{ env.ALUMET_DIR }}/files/alumet-agent --plugins csv,perf,procfs,socket-control config regen
+
+      - name: Grant rights
+        run: |
+          cd ${{ env.ALUMET_DIR }}/files
+          chmod 555 alumet-agent
+          chmod 755 alumet
+          chmod 644 alumet-config.toml
+          chmod 644 alumet.service
+
+
       - name: Define package name
         id: define_package_name
-        shell: bash
         run: |
           echo "PACKAGE_NAME=${{ inputs.name }}_${{ inputs.version }}-${{ inputs.revision }}_${{ inputs.arch }}_${{ env.OS_NAME }}_${{ env.OS_VERSION }}.deb" >> $GITHUB_OUTPUT
 
@@ -101,15 +143,19 @@ jobs:
       #  - 'dch' allow to create the debian/changelog file used in Debian package for some dynamic elements
       #  - 'dpkg-buildpackage' build the Debian package according the changelog
       - name: Official DEB package construction with dpkg builder
-        shell: bash
         run: |
           export DEBFULLNAME="${{ env.author }}"
           export DEBEMAIL="${{ env.mail }}"
 
+          # Go to the correct file and apply correct rights
           cd "${{ env.ALUMET_DIR }}"
-          chmod -R 775 script
 
-          tar -czf ../"${{ inputs.name }}"_"${{ inputs.version }}".orig.tar.gz .
+          # Replace in control file with the correct values
+          sed -i 's/VERSION/${{ inputs.version }}/g' ./debian/control
+          sed -i 's/REVISION/${{ inputs.revision }}/g' ./debian/control
+
+          # Create the archive
+          tar -czf ../"${{ inputs.name }}-agent"_"${{ inputs.version }}".orig.tar.gz .
           dch --create --package "${{ inputs.name }}" \
               --newversion "${{ inputs.version }}-${{ inputs.revision }}" \
               --distribution "${{ inputs.distro }}" \
@@ -124,7 +170,7 @@ jobs:
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.define_package_name.outputs.PACKAGE_NAME }} 
+          name: ${{ steps.define_package_name.outputs.PACKAGE_NAME }}
           path: |
             ${{ steps.define_package_name.outputs.PACKAGE_NAME }}
 
@@ -136,8 +182,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "debian:11" ]
-  
+        os: ["debian:11"]
+
     container:
       image: ${{ matrix.os }}
       options: --cap-add=SYS_NICE --cap-add=PERFMON
@@ -151,26 +197,23 @@ jobs:
           path: ./deb
           merge-multiple: true
 
-      - name: Check OS package required dependencies for package construction
-        shell: bash
+      - name: Install Deb
         run: |
-          apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y systemctl libcap2-bin openssl
+          apt update
+          deb_file=$(find ${{ steps.download_rpm.outputs.download-path }} -name "*.deb" -print -quit)
+          apt install -y "$deb_file" curl
 
-
-      # Check after package installation on OS the files location, and the validity of the service daemon
-      - name: Testing 'Alumet' package execution after its deployment on system
-        shell: bash
+      - name: Install Goss
         run: |
-          apt install ${{ steps.download_deb.outputs.download-path }}/*.deb
-  
-          ls -l /usr/bin/alumet
-          ls -l /usr/lib/alumet/alumet-agent
-          ls -l /usr/lib/systemd/system/alumet.service
-          ls -l /var/lib/alumet/alumet-config.toml
+          curl -fsSL https://goss.rocks/install | sh
 
-          alumet exec sleep 1
+      - name: Run Goss tests
+        run: |
+          goss -g .github/goss_validate_deb.yaml validate --format documentation >> $GITHUB_STEP_SUMMARY
 
-          systemctl start alumet.service
-          systemctl status alumet.service
-          #systemctl is-active alumet.service
-          systemctl stop alumet.service
+      - name: Upload artifact local agent
+        uses: actions/upload-artifact@v4
+        with:
+          name: report_goss_deb.txt
+          path: |
+            ./goss-results_deb.txt

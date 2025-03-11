@@ -1,4 +1,4 @@
 files/alumet.service /usr/lib/systemd/system/
-files/alumet-config.toml /var/lib/alumet/
-files/alumet /usr/bin/
-files/alumet-agent /usr/lib/alumet/
+files/alumet-config.toml /etc/alumet/alumet-config.toml
+files/alumet /usr/bin/alumet-agent
+files/alumet-agent /usr/lib/
