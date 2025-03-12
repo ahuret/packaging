@@ -140,6 +140,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          repository: 'alumet-dev/packaging'
+          fetch-depth: 1
+          path: 'packaging'
+          ref: 'ci/create-rpm-package'
 
       - name: Download RPM artifact
         id: download_rpm
@@ -159,8 +164,7 @@ jobs:
 
       - name: Run Goss tests
         run: |
-          goss -g .github/goss_validate.yaml validate --format documentation > goss-results.txt
-          cat goss-results.txt >> $GITHUB_STEP_SUMMARY
+          goss -g packaging/.github/goss_validate.yaml validate --format documentation >> $GITHUB_STEP_SUMMARY
 
       - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
