@@ -128,6 +128,8 @@ jobs:
       - name: Grant rights
         run: |
           cd ${{ env.ALUMET_DIR }}
+          ls -al usr/lib
+          ls -al usr/bin
           chmod 555 usr/lib/alumet-agent
           chmod 755 usr/bin/alumet-agent
           chmod 644 etc/alumet/alumet-config.toml
