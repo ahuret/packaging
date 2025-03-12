@@ -39,6 +39,7 @@ on:
 env:
   AUTHOR: "Guillaume Raffin"
   MAIL: "theelectronwill@gmail.com"
+  ALUMET_DIR: ${{ inputs.name }}-${{ inputs.version }}
 
 jobs:
   packaging:
@@ -67,7 +68,6 @@ jobs:
         run: |
           echo "OS_NAME=$(grep '^ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "OS_VERSION=$(grep '^VERSION_ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
-          echo "ALUMET_DIR=${{ inputs.name }}-${{ inputs.version }}" >> $GITHUB_ENV
 
       # Installation of dependencies required for the package compilation
       - name: Install dependencies
