@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          apt update && DEBIAN_FRONTEND=noninteractive apt install -y build-essential devscripts debhelper
+          apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential devscripts debhelper
 
       # Rename the alumet-X.X path with correct version before to enter in it
       - name: Alumet source code downloading from GitHub repository
@@ -106,7 +106,7 @@ jobs:
           for package in "${packages[@]}"; do
             if ! dpkg -l | grep -q "^ii  $package "; then
               echo -e "\e[33mWARNING\e[0m : Packages '$package' required. Installation..."
-              apt install -y "$package" || exit
+              apt-get install -y "$package" || exit
             fi
           done
           rustup default stable
@@ -201,10 +201,10 @@ jobs:
 
       - name: Install Deb
         run: |
-          apt update
-          deb_file=$(find ${{ steps.download_rpm.outputs.download-path }} -name "*.deb" -print -quit)
-          apt install -y curl
-          apt install -y "$deb_file"
+          apt-get update
+          deb_file=$(find ${{ steps.download_deb.outputs.download-path }} -name "*.deb" -print -quit)
+          apt-get install -y curl
+          apt-get install -y "$deb_file"
 
       - name: Install Goss
         run: |
