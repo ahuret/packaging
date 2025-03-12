@@ -9,7 +9,7 @@ jobs:
     uses: ./.github/workflows/build_deb.yaml
     with:
       arch: "amd64"
-      name: "alumet-agent"
+      name: "alumet"
       version: 0.8
       revision: 1
       urgency: "medium"
