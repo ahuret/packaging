@@ -36,6 +36,12 @@ on:
         type: string
         default: "Last release"
 
+      tag:
+        description: 'The tag used to checkout the correct version of source code'
+        required: false
+        type: string
+        default: ''
+
 env:
   AUTHOR: "Guillaume Raffin"
   MAIL: "theelectronwill@gmail.com"
@@ -93,7 +99,7 @@ jobs:
         with:
           repository: alumet-dev/alumet
           fetch-tags: 'true'
-          ref: 'main'
+          ref: '${{ inputs.tag }}'
           path: '${{ env.ALUMET_DIR }}/alumet'
 
       - name: Install Rust and dependencies
