@@ -9,14 +9,18 @@ service:
     running: false
 
 file:
-  /etc/alumet/alumet-config.toml:
-    exists: true
   /usr/lib/alumet-agent:
     exists: true
-  /usr/bin/alumet-agent:
-    exists: true
+    mode: "555"
   /usr/lib/systemd/system/alumet.service:
     exists: true
+    mode: "644"
+  /usr/bin/alumet-agent:
+    exists: true
+    mode: "755"
+  /etc/alumet/alumet-config.toml:
+    exists: true
+    mode: "644"
 
 command:
   'run alumet-agent':
