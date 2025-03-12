@@ -119,6 +119,8 @@ jobs:
           mkdir -p ${base}/bin/
           CARGO_TARGET_DIR=${base}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
           cp ${base}/bin/release/alumet-agent ${base}/${{ env.ALUMET_DIR }}/usr/lib/
+          ls -al usr/lib
+          ls -al usr/bin
 
       - name: Create config file for Alumet
         run: |
@@ -128,8 +130,6 @@ jobs:
       - name: Grant rights
         run: |
           cd ${{ env.ALUMET_DIR }}
-          ls -al usr/lib
-          ls -al usr/bin
           chmod 555 usr/lib/alumet-agent
           chmod 755 usr/bin/alumet-agent
           chmod 644 etc/alumet/alumet-config.toml
