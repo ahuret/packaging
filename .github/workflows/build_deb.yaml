@@ -46,7 +46,7 @@ env:
   AUTHOR: "Guillaume Raffin"
   MAIL: "theelectronwill@gmail.com"
   ALUMET_DIR: ${{ inputs.name }}-${{ inputs.version }}
-  TARGET: [ "x86_64-unknown-linux-gnu", aarch64-unknown-linux-gnu ]
+  TARGET: [ "x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu" ]
 
 jobs:
   packaging:
