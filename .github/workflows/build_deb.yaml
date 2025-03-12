@@ -37,8 +37,9 @@ on:
         default: "Last release"
 
 env:
-  author: "Guillaume Raffin"
-  mail: "theelectronwill@gmail.com"
+  AUTHOR: "Guillaume Raffin"
+  MAIL: "theelectronwill@gmail.com"
+  ALUMET_DIR: ${{ inputs.name }}-${{ inputs.version }}"
 
 jobs:
   packaging:
@@ -67,7 +68,6 @@ jobs:
         run: |
           echo "OS_NAME=$(grep '^ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
           echo "OS_VERSION=$(grep '^VERSION_ID=' "/etc/os-release" | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
-          echo "ALUMET_DIR=${{ inputs.name }}-${{ inputs.version }}" >> $GITHUB_ENV
 
       # Installation of dependencies required for the package compilation
       - name: Install dependencies
@@ -145,8 +145,8 @@ jobs:
       #  - 'dpkg-buildpackage' build the Debian package according the changelog
       - name: Official DEB package construction with dpkg builder
         run: |
-          export DEBFULLNAME="${{ env.author }}"
-          export DEBEMAIL="${{ env.mail }}"
+          export DEBFULLNAME="${{ env.AUTHOR }}"
+          export DEBEMAIL="${{ env.MAIL }}"
 
           # Go to the correct file and apply correct rights
           cd "${{ env.ALUMET_DIR }}"
@@ -214,7 +214,7 @@ jobs:
 
       - name: Run Goss tests
         run: |
-          goss -g .github/goss_validate_deb.yaml validate --format documentation >> $GITHUB_STEP_SUMMARY
+          goss -g .github/goss_validate_deb.yaml validate --format documentation | tee goss-results_deb.txt >> $GITHUB_STEP_SUMMARY
 
       - name: Upload artifact local agent
         uses: actions/upload-artifact@v4
