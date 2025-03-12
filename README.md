@@ -24,27 +24,24 @@ sudo apt remove alumet-agent
 
 # What does the DEB package do ? 
 
-On Debian based operating system, the DEB create a folder **alumet** inside the */var/lib/alumet/* folder,
+On Debian based operating system, the DEB create a folder **alumet** inside the */etc/alumet/* folder,
 to put the *alumet-config.toml* file, which is the configuration file used for Alumet by default.
 It also creating a daemon disable by default, but runnable and usable by the *systemd* services manager.
 Finally, the package put the **Alumet** binary program in the */usr/lib/alumet* folder, and its runnable script in */usr/bin/*.
 
     alumet/
-    |__ usr
-    │   └── lib
-    │       └── systemd
-    │           └── system
-    │               └── alumet.service
-    ├── var
-    |   └── lib
-    │       └── alumet
-    │           └── alumet-config.toml
+    ├── etc
+    |   └── alumet
+    │       └── alumet-config.toml
     └── usr
         ├── bin
         │   └── alumet-agent
         └── lib
-            └── alumet
-                └── alumet-agent
+            ├── alumet
+            |   └── alumet-agent
+            └── systemd
+                └── system
+                    └── alumet.service
 
 Finally, you can just run **Alumet** program like this :
 
