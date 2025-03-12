@@ -46,7 +46,7 @@ env:
   AUTHOR: "Guillaume Raffin"
   MAIL: "theelectronwill@gmail.com"
   ALUMET_DIR: ${{ inputs.name }}-${{ inputs.version }}
-  TARGET: [ "x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu" ]
+  TARGET: "x86_64-unknown-linux-gnu"
 
 jobs:
   packaging:
@@ -127,7 +127,7 @@ jobs:
           base=$(pwd)
           cd ${{ env.ALUMET_DIR }}/alumet/agent
           mkdir -p ${base}/bin/
-          CARGO_TARGET_DIR=${base}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --target="${{ env.TARGET[0] }}" --all-features
+          CARGO_TARGET_DIR=${base}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --target="${{ env.TARGET }}" --all-features
           cp ${base}/bin/release/alumet-agent ${base}/${{ env.ALUMET_DIR }}/usr/lib/
 
       - name: Create config file for Alumet
