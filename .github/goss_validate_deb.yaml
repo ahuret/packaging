@@ -1,6 +1,6 @@
 ---
 package:
-  alumet:
+  alumet-agent:
     installed: true
 
 service:

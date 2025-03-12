@@ -189,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["debian:12"]
+        os: ["debian:11"]
 
     container:
       image: ${{ matrix.os }}
@@ -203,7 +203,7 @@ jobs:
         id: download_deb
         uses: actions/download-artifact@v4
         with:
-          pattern: '**/*12*.deb'
+          pattern: '**/*11*.deb'
           path: ./deb
           merge-multiple: true
 

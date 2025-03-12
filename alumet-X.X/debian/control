@@ -8,7 +8,7 @@ Homepage: https://alumet.dev/
 Vcs-Git: https://github.com/alumet-dev/alumet.git
 Version: VERSION-REVISION
 
-Package: alumet
+Package: alumet-agent
 Architecture: amd64
 Depends: libc6 (>= 2.2.5), libgcc-s1 (>= 2.35), libcap2-bin, openssl
 Description: A tool for measuring the energy consumption and performance metrics
