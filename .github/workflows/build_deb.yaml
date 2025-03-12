@@ -123,16 +123,15 @@ jobs:
       - name: Create config file for Alumet
         run: |
           . "$HOME/.cargo/env"
-          ALUMET_CONFIG=${{ env.ALUMET_DIR }}/files/alumet-config.toml ./${{ env.ALUMET_DIR }}/files/alumet-agent --plugins csv,perf,procfs,socket-control config regen
+          ALUMET_CONFIG=${{ env.ALUMET_DIR }}/etc/alumet/alumet-config.toml ./${{ env.ALUMET_DIR }}/usr/bin/alumet-agent --plugins csv,perf,procfs,socket-control config regen
 
       - name: Grant rights
         run: |
-          cd ${{ env.ALUMET_DIR }}/files
-          chmod 555 alumet-agent
-          chmod 755 alumet
-          chmod 644 alumet-config.toml
-          chmod 644 alumet.service
-
+          cd ${{ env.ALUMET_DIR }}
+          chmod 555 usr/lib/alumet-agent
+          chmod 755 usr/bin/alumet-agent
+          chmod 644 etc/alumet/alumet-config.toml
+          chmod 644 usr/lib/systemd/system/alumet.service
 
       - name: Define package name
         id: define_package_name

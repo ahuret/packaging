@@ -8,29 +8,18 @@ To create a .deb package file to ensure its compatibility with an operating syst
 Run the *config.sh* script that downloading **Alumet** project sources on github ("https://github.com/alumet-dev/alumet"), 
 extract and compile its content in a final binary according the targeted operating system version and distribution.
 
-```bash
-./packager.sh
-```
-
 # How to install ? 
 
-```bash
-sudo dpkg -i <package_file.deb>
-```
-Or with **apt** package manager :
+With **apt** package manager :
 ```bash
 sudo apt install ./<package_file.deb>
 ```
 
 # How to uninstall
 
-Remove the correct **Alumet** package :
+Remove the correct **Alumet** package with **apt** package manager :
 ```bash
-sudo dpkg -r alumet
-```
-Or with **apt** package manager :
-```bash
-sudo apt remove alumet
+sudo apt remove alumet-agent
 ```
 
 # What does the DEB package do ? 
@@ -52,7 +41,7 @@ Finally, the package put the **Alumet** binary program in the */usr/lib/alumet* 
     │           └── alumet-config.toml
     └── usr
         ├── bin
-        │   └── alumet
+        │   └── alumet-agent
         └── lib
             └── alumet
                 └── alumet-agent
@@ -60,5 +49,5 @@ Finally, the package put the **Alumet** binary program in the */usr/lib/alumet* 
 Finally, you can just run **Alumet** program like this :
 
 ```bash
-alumet
+alumet-agent
 ```
