@@ -102,6 +102,7 @@ jobs:
 
           echo '. "$HOME/.cargo/env"' >> $HOME/.bashrc
           . "$HOME/.cargo/env"
+
           packages=("curl" "git" "build-essential" "protobuf-compiler" "libssl-dev" "pkg-config")
           for package in "${packages[@]}"; do
             if ! dpkg -l | grep -q "^ii  $package "; then
@@ -109,6 +110,7 @@ jobs:
               apt-get install -y "$package" || exit
             fi
           done
+
           rustup default stable
 
       - name: Compile Alumet
@@ -181,7 +183,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["debian:11"]
+        os: ["debian:12"]
 
     container:
       image: ${{ matrix.os }}
@@ -195,7 +197,7 @@ jobs:
         id: download_deb
         uses: actions/download-artifact@v4
         with:
-          pattern: '**/*11*.deb'
+          pattern: '**/*12*.deb'
           path: ./deb
           merge-multiple: true
 
