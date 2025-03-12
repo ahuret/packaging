@@ -118,7 +118,7 @@ jobs:
           cd ${{ env.ALUMET_DIR }}/alumet/agent
           mkdir -p ${base}/bin/
           CARGO_TARGET_DIR=${base}/bin/ ALUMET_AGENT_RELEASE=true cargo build --release -p alumet-agent --bins --all-features
-          cp ${base}/bin/release/alumet-agent ${base}/${{ env.ALUMET_DIR }}/usr/bin/
+          cp ${base}/bin/release/alumet-agent ${base}/${{ env.ALUMET_DIR }}/usr/lib/
 
       - name: Create config file for Alumet
         run: |
