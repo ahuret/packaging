@@ -124,7 +124,7 @@ jobs:
       - name: Create config file for Alumet
         run: |
           . "$HOME/.cargo/env"
-          ALUMET_CONFIG=${{ env.ALUMET_DIR }}/etc/alumet/alumet-config.toml ./${{ env.ALUMET_DIR }}/usr/bin/alumet-agent --plugins csv,perf,procfs,socket-control config regen
+          ALUMET_CONFIG=${{ env.ALUMET_DIR }}/etc/alumet/alumet-config.toml ./${{ env.ALUMET_DIR }}/usr/lib/alumet-agent --plugins csv,perf,procfs,socket-control config regen
 
       - name: Grant rights
         run: |
