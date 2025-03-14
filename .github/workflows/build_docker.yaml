@@ -25,6 +25,7 @@ jobs:
         #package-os: ["debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
         include:
           - package-os: fedora40
+            package-type: rpm
             builder-image: ""
             base-image: fedora:40
             dockerfile: "fedora/Dockerfile"
@@ -35,16 +36,19 @@ jobs:
             dockerfile: "fedora/Dockerfile"
 
           - package-os: fedora42
+            package-type: rpm
             builder-image: ""
             base-image: fedora:42
             dockerfile: "fedora/Dockerfile"
 
           - package-os: ubi8.3 # TODO PASS TO ubi-8.10
+            package-type: rpm
             builder-image: redhat/ubi8:8.3
             base-image: redhat/ubi8-minimal:8.3
             dockerfile: "ubi/Dockerfile"
 
           - package-os: ubi9.5
+            package-type: rpm
             builder-image: redhat/ubi9:9.5
             base-image: redhat/ubi9-minimal:9.5
             dockerfile: "ubi/Dockerfile"
