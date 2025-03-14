@@ -99,6 +99,8 @@ jobs:
         if: env.ARCH == 'x86_64' && matrix.package-type == 'deb'
         run: echo "ARCH=amd64" >> $GITHUB_ENV
 
+      - run: echo "${{ matrix.package-type }}"
+
       - name: Define the dependency artifact name (RPM)
         if: matrix.package-type == 'rpm'
         run: echo "DEPS_ARTIFACT_FILE=alumet-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ matrix.package-os }}.${{ env.ARCH }}.rpm" >> $GITHUB_ENV
