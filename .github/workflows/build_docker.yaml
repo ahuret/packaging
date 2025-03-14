@@ -96,7 +96,7 @@ jobs:
         run: echo "ARCH=${{ inputs.target-architecture }}" >> $GITHUB_ENV
 
       - name: Manage ARCH naming for X86_64 (DEB)
-        if: env.ARCH == 'X86_64'
+        if: env.ARCH == 'X86_64' && matrix.package-type == 'deb'
         run: echo "ARCH=amd64" >> $GITHUB_ENV
 
       - name: Define the dependency artifact name (RPM)
