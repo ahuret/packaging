@@ -31,6 +31,7 @@ jobs:
             dockerfile: "fedora/Dockerfile"
 
           - package-os: fedora41
+            package-type: rpm
             builder-image: ""
             base-image: fedora:41
             dockerfile: "fedora/Dockerfile"
