@@ -167,8 +167,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        package-os: ["fedora40", "fedora41", "fedora42", "ubi8.3", "ubi9.5"]
-        #package-os: ["debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
+        package-os: ["fedora40", "fedora41", "fedora42", "ubi8.3", "ubi9.5", "debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
     needs:
       - packaging
 
