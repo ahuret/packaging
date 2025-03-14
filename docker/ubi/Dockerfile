@@ -44,7 +44,7 @@ RUN groupadd -r alumet && \
 # NOTE: Workaround for ubi-8.3 that need to have libcap updated... Can be removed for ubi-8.10
 # needed capability for rapl plugin - TODO make it optional
 RUN microdnf update libcap && \
-    setcap cap_perfmon=ep /usr/bin/alumet-agent
+    setcap 'cap_sys_nice+ep cap_perfmon=ep' /usr/bin/alumet-agent
 
 USER alumet
 WORKDIR /app

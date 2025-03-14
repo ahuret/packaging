@@ -38,7 +38,7 @@ RUN groupadd -r alumet && \
     chown alumet:alumet /usr/bin/alumet-agent /etc/alumet/alumet-config.toml /app
 
 # needed capability for rapl plugin - TODO make it optional
-RUN setcap cap_perfmon=ep "/usr/bin/alumet-agent"
+RUN setcap 'cap_sys_nice+ep cap_perfmon=ep' "/usr/bin/alumet-agent"
 
 USER alumet
 WORKDIR /app
