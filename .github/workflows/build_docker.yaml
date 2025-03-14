@@ -21,8 +21,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        package-os: ["fedora40", "fedora41", "fedora42", "ubi8.3", "ubi9.5"]
-        #package-os: ["debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
+        package-os: ["fedora40", "fedora41", "fedora42", "ubi8.3", "ubi9.5", "debian_11", "debian_12", "ubuntu_20.04", "ubuntu_22.04", "ubuntu_24.04", "ubuntu_25.04"]
         include:
           - package-os: fedora40
             package-type: rpm
@@ -54,41 +53,41 @@ jobs:
             base-image: redhat/ubi9-minimal:9.5
             dockerfile: "ubi/Dockerfile"
 
-#          - package-os: debian_11
-#            package-type: deb
-#            builder-image: ""
-#            base-image: debian:11-slim
-#            dockerfile: "debian/Dockerfile"
-#
-#          - package-os: debian_12
-#            package-type: deb
-#            builder-image: ""
-#            base-image: debian:12-slim
-#            dockerfile: "debian/Dockerfile"
-#
-#          - package-os: ubuntu_20.04
-#            package-type: deb
-#            builder-image: ""
-#            base-image: ubuntu:20.04
-#            dockerfile: "ubuntu/Dockerfile"
-#
-#          - package-os: ubuntu_22.04
-#            package-type: deb
-#            builder-image: ""
-#            base-image: ubuntu:22.04
-#            dockerfile: "ubuntu/Dockerfile"
-#
-#          - package-os: ubuntu_24.04
-#            package-type: deb
-#            builder-image: ""
-#            base-image: ubuntu:24.04
-#            dockerfile: "ubuntu/Dockerfile"
-#
-#          - package-os: ubuntu_25.04
-#            package-type: deb
-#            builder-image: ""
-#            base-image: ubuntu:25.04
-#            dockerfile: "ubuntu/Dockerfile"
+          - package-os: debian_11
+            package-type: deb
+            builder-image: ""
+            base-image: debian:11-slim
+            dockerfile: "debian/Dockerfile"
+
+          - package-os: debian_12
+            package-type: deb
+            builder-image: ""
+            base-image: debian:12-slim
+            dockerfile: "debian/Dockerfile"
+
+          - package-os: ubuntu_20.04
+            package-type: deb
+            builder-image: ""
+            base-image: ubuntu:20.04
+            dockerfile: "ubuntu/Dockerfile"
+
+          - package-os: ubuntu_22.04
+            package-type: deb
+            builder-image: ""
+            base-image: ubuntu:22.04
+            dockerfile: "ubuntu/Dockerfile"
+
+          - package-os: ubuntu_24.04
+            package-type: deb
+            builder-image: ""
+            base-image: ubuntu:24.04
+            dockerfile: "ubuntu/Dockerfile"
+
+          - package-os: ubuntu_25.04
+            package-type: deb
+            builder-image: ""
+            base-image: ubuntu:25.04
+            dockerfile: "ubuntu/Dockerfile"
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -132,9 +131,9 @@ jobs:
         with:
           name: ${{ env.DEPS_ARTIFACT_FILE }}
           path: build/deps-artifacts/
-          #run-id: "13854969332" # NOTE! FOR DEBIAN TESTS PURPOSE
-          #github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
-          #repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
+          run-id: "13854969332" # NOTE! FOR DEBIAN TESTS PURPOSE
+          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
+          repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
 
       - name: Create docker image output dir
         run: mkdir -p build/docker
