@@ -107,7 +107,7 @@ jobs:
           mkdir -p alumet
           mkdir -p /etc/alumet  // TODO Change on merge !!
 
-      - name: Checkout alumet
+      - name: Checkout alumet repo
         uses: actions/checkout@v4
         with:
           # repository: alumet-dev/alumet
@@ -129,7 +129,7 @@ jobs:
           tar --exclude=".[^/]*" --exclude="./build" --transform 's|.|alumet|' -zcvf ${{ env.build_dir }}/SOURCES/alumet.tar.gz .
           rpmbuild -ba -vv --define "_topdir ${{ env.build_dir }}" --define "release ${{ inputs.release-version }}" --define "osr ${{ env.OS }}" --define "version ${{ inputs.build-version }}" --define "arch ${{ inputs.target-architecture }}" packaging/rpm/specs/alumet.spec
 
-      - name: Upload artifact local agent
+      - name: Upload artifact alumet-agent
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.name }}-agent-${{ inputs.build-version }}-${{ inputs.release-version }}.${{ env.OS }}.${{ inputs.target-architecture }}.rpm
@@ -171,13 +171,10 @@ jobs:
 
       - name: Run Goss tests
         run: |
+          set -o pipefail
           goss -g packaging/.github/goss_validate.yaml validate --format documentation | tee goss-results.txt >> $GITHUB_STEP_SUMMARY
-          failed_count=$(grep -oP 'Failed:\s*(\d+)' goss-results.txt | awk -F': ' '{print $2}')
-          if [ "$failed_count" -ne 0 ]; then
-            exit 1
-          fi
 
-      - name: Upload artifact local agent
+      - name: Upload artifact alumet-agent
         uses: actions/upload-artifact@v4
         with:
           name: report_goss.txt

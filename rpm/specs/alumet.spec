@@ -15,7 +15,7 @@ BuildRequires:  openssl-devel >= 3.0.0
 
 Requires: glibc >= 2.2.5
 Requires: openssl >= 3.0.0
-
+Requires: libcap
 
 %package agent
 Summary:        alumet-agent package
@@ -50,11 +50,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/alumet
 chmod 777 %{buildroot}%{_sysconfdir}/alumet
 install -D -m 0644 "%{_builddir}/alumet-config.toml" "%{buildroot}%{_sysconfdir}/alumet/alumet-config.toml"
 install -D -m 0644 "%{_builddir}/alumet.service" "%{buildroot}%{_exec_prefix}/lib/systemd/system/alumet.service"
-# Add capabilities to alumet binary
-%caps(cap_sys_nice=pe) %{buildroot}%{_exec_prefix}/lib/alumet-agent
-if [ "$KERNEL_MAJOR" -gt 5 ] || { [ "$KERNEL_MAJOR" -eq 5 ] && [ "$KERNEL_MINOR" -ge 8 ]; }; then
-    %caps(cap_perfmon=pe) %{buildroot}%{_exec_prefix}/lib/alumet-agent
-fi
 
 %files agent
 %{_bindir}/alumet-agent
@@ -63,6 +58,13 @@ fi
 %{_sysconfdir}/alumet/alumet-config.toml
 %{_exec_prefix}/lib/systemd/system/alumet.service
 
+%post
+# Add capabilities to alumet binary
+if [ "$KERNEL_MAJOR" -gt 5 ] || { [ "$KERNEL_MAJOR" -eq 5 ] && [ "$KERNEL_MINOR" -ge 8 ]; }; then
+    setcap 'cap_sys_nice+ep cap_perfmon=ep' %{_exec_prefix}/lib/alumet-agent
+else
+    setcap 'cap_sys_nice+ep' %{_exec_prefix}/lib/alumet-agent
+fi 
 
 %changelog 
 * Tue Mar 04 2025 Cyprien cyprien.pelisse-verdoux@eviden.com - 0.0.4
