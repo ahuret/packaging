@@ -115,7 +115,8 @@ jobs:
         with:
           name: ${{ env.DEPS_ARTIFACT_FILE }}
           path: build/deps-artifacts/
-          #run-id: "13790209453" # NOTE! FOR RPM TESTS PURPOSE
+          run-id: "13859407929" # NOTE! FOR RPM TESTS PURPOSE
+          github-token: ${{ secrets.GITHUB_TOKEN }} # NOTE! FOR TESTS PURPOSE
           #repository: alumet-dev/packaging # NOTE! FOR TESTS PURPOSE
 
       - name: Download $ARTIFACT_NAME (DEB)
